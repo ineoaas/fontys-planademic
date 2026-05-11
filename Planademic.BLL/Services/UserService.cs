@@ -12,6 +12,7 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
+// Using Async from martins workshop
     public async Task<User?> ValidateLoginAsync(string email, string password, string role)
     {
         var user = await _userRepository.GetByEmailAsync(email);
