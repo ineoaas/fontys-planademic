@@ -52,6 +52,11 @@
             <form method="post" class="auth-form">
                 @Html.AntiForgeryToken()
 
+                @if (Model.ErrorMessage != null)
+                {
+                    <div class="auth-error">@Model.ErrorMessage</div>
+                }
+
                 <div class="field-group" style="margin-bottom: 1rem;">
                     <p class="field-label">I am a</p>
                     <div class="role-toggle">
