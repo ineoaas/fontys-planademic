@@ -18,8 +18,6 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 // Set up cookie-based authentication
-// LoginPath: where to send unauthenticated users
-// ExpireTimeSpan: how long the login cookie lasts (8 hours here)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
