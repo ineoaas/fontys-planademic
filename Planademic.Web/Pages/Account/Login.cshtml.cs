@@ -36,8 +36,6 @@ public class LoginModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        // Step 1: check data annotations ([Required], [EmailAddress])
-        // If email is "notanemail" this will fail here and show the error
         if (!ModelState.IsValid)
         {
             ErrorMessage = ModelState.Values
@@ -47,7 +45,6 @@ public class LoginModel : PageModel
             return Page();
         }
 
-        // Step 2: teacher is hardcoded — only one email is allowed to log in as Teacher
         if (Role == "Teacher" &&
             !Email.Equals(HardcodedTeacherEmail, StringComparison.OrdinalIgnoreCase))
         {
@@ -55,16 +52,12 @@ public class LoginModel : PageModel
             return Page();
         }
 
-        // Step 3: look up the user in the database and verify password
         var user = await _userService.ValidateLoginAsync(Email, Password, Role);
         if (user == null)
         {
             ErrorMessage = "Invalid email or password.";
             return Page();
         }
-
-        // Step 4: build the identity — these claims are stored inside the encrypted cookie
-        // ClaimTypes.Role is what [Authorize(Roles = "Teacher")] checks against
         var claims = new List<Claim>
         {
             new(ClaimTypes.Name,  $"{user.FirstName} {user.LastName}"),
@@ -75,10 +68,8 @@ public class LoginModel : PageModel
         var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
 
-        // Step 5: write the encrypted cookie to the browser
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-        // Step 6: redirect to the right dashboard based on role
         return user.Role == "Teacher"
             ? RedirectToPage("/Teacher/Dashboard")
             : RedirectToPage("/Dashboard");
