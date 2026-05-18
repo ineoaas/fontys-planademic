@@ -60,6 +60,7 @@ public class LoginModel : PageModel
         }
         var claims = new List<Claim>
         {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name,  $"{user.FirstName} {user.LastName}"),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Role,  user.Role),
