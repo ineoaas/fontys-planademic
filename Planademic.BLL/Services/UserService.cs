@@ -12,6 +12,7 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
+// Using Async from martins workshop
     public async Task<User?> ValidateLoginAsync(string email, string password, string role)
     {
         var user = await _userRepository.GetByEmailAsync(email);
@@ -24,11 +25,11 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<(bool Success, string? Error)> RegisterAsync(
+    public async Task<(bool Success, string? Error, User? User)> RegisterAsync(
         string email, string password, string firstName, string lastName)
     {
         if (await _userRepository.EmailExistsAsync(email))
-            return (false, "An account with this email already exists.");
+            return (false, "An account with this email already exists.", null);
 
         var user = new User
         {
@@ -41,6 +42,6 @@ public class UserService : IUserService
         };
 
         await _userRepository.AddAsync(user);
-        return (true, null);
+        return (true, null, user);
     }
 }

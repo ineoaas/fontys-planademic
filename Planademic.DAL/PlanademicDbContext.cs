@@ -8,6 +8,8 @@ public class PlanademicDbContext : DbContext
     public PlanademicDbContext(DbContextOptions<PlanademicDbContext> options) : base(options) { }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<Course> Courses => Set<Course>();
+    public DbSet<CourseEnrollment> Enrollments => Set<CourseEnrollment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +24,24 @@ public class PlanademicDbContext : DbContext
             entity.Property(u => u.FirstName).HasMaxLength(100).IsRequired();
             entity.Property(u => u.LastName).HasMaxLength(100).IsRequired();
             entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETDATE()");
+        });
+
+        modelBuilder.Entity<Course>(entity =>
+        {
+            entity.ToTable("Courses");
+            entity.HasKey(c => c.Id);
+            entity.Property(c => c.Name).HasMaxLength(200).IsRequired();
+            entity.Property(c => c.JoinCode).HasMaxLength(10).IsRequired();
+            entity.HasIndex(c => c.JoinCode).IsUnique();
+            entity.Property(c => c.CreatedAt).HasDefaultValueSql("GETDATE()");
+        });
+
+        modelBuilder.Entity<CourseEnrollment>(entity =>
+        {
+            entity.ToTable("CourseEnrollments");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.CourseId, e.StudentId }).IsUnique();
+            entity.Property(e => e.EnrolledAt).HasDefaultValueSql("GETDATE()");
         });
     }
 }

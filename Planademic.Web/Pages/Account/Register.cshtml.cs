@@ -60,7 +60,7 @@ public class RegisterModel : PageModel
             return Page();
         }
 
-        var (success, error) = await _userService.RegisterAsync(Email, Password, FirstName, LastName);
+        var (success, error, user) = await _userService.RegisterAsync(Email, Password, FirstName, LastName);
         if (!success)
         {
             ErrorMessage = error;
@@ -69,6 +69,7 @@ public class RegisterModel : PageModel
 
         var claims = new List<Claim>
         {
+            new(ClaimTypes.NameIdentifier, user!.Id.ToString()),
             new(ClaimTypes.Name,  $"{FirstName} {LastName}"),
             new(ClaimTypes.Email, Email),
             new(ClaimTypes.Role,  "Student"),
