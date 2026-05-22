@@ -25,4 +25,15 @@ public class UserServiceTests
 
         Assert.Null(result);
     }
+
+    [Fact]
+    public async Task ValidateLogin_ReturnsNull_WhenRoleDoesNotMatch()
+    {
+        var user = new User { Email = "a@test.com", PasswordHash = "pass", Role = "Student" };
+        _repoMock.Setup(r => r.GetByEmailAsync("a@test.com")).ReturnsAsync(user);
+
+        var result = await _sut.ValidateLoginAsync("a@test.com", "pass", "Teacher");
+
+        Assert.Null(result);
+    }
 }
