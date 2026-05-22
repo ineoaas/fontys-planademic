@@ -36,4 +36,15 @@ public class UserServiceTests
 
         Assert.Null(result);
     }
+
+    [Fact]
+    public async Task ValidateLogin_ReturnsNull_WhenPasswordIsWrong()
+    {
+        var user = new User { Email = "a@test.com", PasswordHash = "correct", Role = "Student" };
+        _repoMock.Setup(r => r.GetByEmailAsync("a@test.com")).ReturnsAsync(user);
+
+        var result = await _sut.ValidateLoginAsync("a@test.com", "wrong", "Student");
+
+        Assert.Null(result);
+    }
 }
