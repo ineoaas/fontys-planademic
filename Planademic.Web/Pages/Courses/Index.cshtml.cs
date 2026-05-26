@@ -10,29 +10,7 @@ namespace Planademic.Web.Pages.Courses;
 [Authorize]
 public class IndexModel : PageModel
 {
-    private readonly ICourseService _courseService;
-
-    public IndexModel(ICourseService courseService)
-    {
-        _courseService = courseService;
-    }
-
-    [BindProperty]
-    public string JoinCode { get; set; } = string.Empty;
-
-    [BindProperty]
-    public string CourseName { get; set; } = string.Empty;
-
-    public string? ErrorMessage { get; set; }
-    public List<Course> Courses { get; set; } = [];
-
-    public async Task OnGetAsync()
-    {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        Courses = await _courseService.GetCoursesByUserIdAsync(userId);
-    }
-
-    public async Task<IActionResult> OnPostJoinAsync()
+    public class IndexModel : PageModel
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var (success, error) = await _courseService.JoinCourseAsync(JoinCode, userId);
