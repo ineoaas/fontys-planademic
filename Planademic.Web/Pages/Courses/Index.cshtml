@@ -40,11 +40,24 @@
                 <div class="progress-track">
                     <div class="progress-fill" style="width: 25%; background: #818cf8;"></div>
                 </div>
+<<<<<<< Updated upstream
                 <span class="progress-label">1/4</span>
             </div>
             <div class="course-stats">
                 <span><strong>4</strong> tasks</span>
                 <span><strong>3</strong> pending</span>
+=======
+                @if (User.IsInRole("Teacher"))
+                {
+                    <form method="post" asp-page-handler="Delete" style="margin-top: 0.75rem;">
+                        <input type="hidden" name="courseId" value="@course.Id" />
+                        <button type="submit" class="btn btn-ghost btn-sm" style="color: #e85d75;"
+                                onclick="return confirm('Delete &quot;@course.Name&quot;? This will also delete all its tasks and enrollments.')">
+                            Delete
+                        </button>
+                    </form>
+                }
+>>>>>>> Stashed changes
             </div>
         </div>
     </div>
