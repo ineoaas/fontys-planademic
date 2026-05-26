@@ -58,6 +58,7 @@ public class CourseService : ICourseService
         return await _courseRepository.DeleteAsync(courseId, teacherId);
     }
 
+
     private static string GenerateJoinCode()
     {
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

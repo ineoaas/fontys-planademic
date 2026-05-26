@@ -92,6 +92,16 @@
                 <div class="course-stats" style="margin-top: auto;">
                     <span>Created @course.CreatedAt.ToString("MMM d")</span>
                 </div>
+                @if (User.IsInRole("Teacher"))
+                {
+                    <form method="post" asp-page-handler="Delete" style="margin-top: 0.75rem;">
+                        <input type="hidden" name="courseId" value="@course.Id" />
+                        <button type="submit" class="btn btn-ghost btn-sm" style="color: #e85d75;"
+                                onclick="return confirm('Delete &quot;@course.Name&quot;? This will also delete all its tasks and enrollments.')">
+                            Delete
+                        </button>
+                    </form>
+                }
             </div>
         </div>
     }

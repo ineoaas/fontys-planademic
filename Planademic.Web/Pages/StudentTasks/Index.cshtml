@@ -1,0 +1,125 @@
+@page
+@model Planademic.Web.Pages.StudentTasks.IndexModel
+@{
+    ViewData["Title"] = "My Tasks";
+    ViewData["ActivePage"] = "StudentTasks";
+}
+
+@if (!User.IsInRole("Student"))
+{
+    <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
+        <svg style="width:48px;height:48px;margin-bottom:1rem;opacity:.4;" viewBox="0 0 24 24" fill="none"><path d="M12 2a5 5 0 1 1 0 10A5 5 0 0 1 12 2zm0 12c5.33 0 8 2.67 8 4v2H4v-2c0-1.33 2.67-4 8-4z" fill="currentColor"/></svg>
+        <p style="font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">Student access only</p>
+        <p>This page is for students to manage their tasks.</p>
+    </div>
+    return;
+}
+
+@if (Model.ErrorMessage != null)
+{
+    <p class="field-error">@Model.ErrorMessage</p>
+}
+
+@* Available assignments from enrolled courses *@
+<h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-muted);">Available assignments</h2>
+
+@if (!Model.AvailableAssignments.Any())
+{
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">No assignments available from your courses yet.</p>
+}
+else
+{
+    <div class="course-grid" style="margin-bottom: 2rem;">
+        @foreach (var assignment in Model.AvailableAssignments)
+        {
+            var alreadyAssigned = Model.MyTasks.Any(t => t.AssignmentId == assignment.Id);
+            var isOverdue = assignment.Deadline < DateTime.Now;
+            <div class="course-card">
+                <div class="course-color-bar" style="background: #818cf8;"></div>
+                <div class="course-body">
+                    <div class="course-name">@assignment.Title</div>
+                    <div class="course-teacher">@assignment.Description</div>
+                    <div class="course-stats" style="margin-top: auto;">
+                        <span>Complexity: <strong>@assignment.Complexity/10</strong></span>
+                        <span style="color: @(isOverdue ? "#e85d75" : "inherit");">
+                            @(isOverdue ? "Overdue" : "Due") @assignment.Deadline.ToString("MMM d, yyyy")
+                        </span>
+                    </div>
+                    @if (alreadyAssigned)
+                    {
+                        <span style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem; display: block;">Already assigned</span>
+                    }
+                    else
+                    {
+                        <form method="post" asp-page-handler="Assign" style="margin-top: 0.75rem;">
+                            <input type="hidden" name="AssignmentId" value="@assignment.Id" />
+                            <button type="submit" class="btn btn-primary btn-sm">Assign to me</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@* My assigned tasks *@
+<h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-muted);">My tasks</h2>
+
+@if (!Model.MyTasks.Any())
+{
+    <p style="color: var(--text-muted);">You have not assigned any tasks to yourself yet.</p>
+}
+else
+{
+    <div class="course-grid">
+        @foreach (var task in Model.MyTasks)
+        {
+            var isOverdue = !task.IsCompleted && task.Deadline < DateTime.Now;
+            var barColor = task.IsCompleted ? "#4caf7d" : (isOverdue ? "#e85d75" : "#f5a623");
+            var deadlineColor = isOverdue ? "#e85d75" : "inherit";
+            <div class="course-card">
+                <div class="course-color-bar" style="background: @barColor;"></div>
+                <div class="course-body">
+                    <div class="course-name">@task.Title</div>
+                    <div class="course-stats" style="margin-top: auto;">
+                        <span>Complexity: <strong>@task.Complexity/10</strong></span>
+                        <span style="color: @deadlineColor;">
+                            @if (task.IsCompleted)
+                            {
+                                <text>Due @task.Deadline.ToString("MMM d, yyyy")</text>
+                            }
+                            else if (isOverdue)
+                            {
+                                <text>Overdue @task.Deadline.ToString("MMM d, yyyy")</text>
+                            }
+                            else
+                            {
+                                <text>Due @task.Deadline.ToString("MMM d, yyyy")</text>
+                            }
+                        </span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; align-items: center;">
+                        @if (task.IsCompleted)
+                        {
+                            <span style="color: #4caf7d; font-size: 0.8rem;">Completed</span>
+                        }
+                        else
+                        {
+                            <form method="post" asp-page-handler="Complete">
+                                <input type="hidden" name="taskId" value="@task.Id" />
+                                <button type="submit" class="btn btn-ghost btn-sm">Mark complete</button>
+                            </form>
+                        }
+                        <form method="post" asp-page-handler="Delete">
+                            <input type="hidden" name="taskId" value="@task.Id" />
+                            <button type="submit" class="btn btn-ghost btn-sm" style="color: #e85d75;"
+                                    onclick="return confirm('Delete task &quot;@task.Title&quot;?')">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

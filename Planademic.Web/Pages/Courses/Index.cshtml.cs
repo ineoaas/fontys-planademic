@@ -39,4 +39,11 @@ public class IndexModel : PageModel
 
         return RedirectToPage();
     }
+
+    public async Task<IActionResult> OnPostDeleteAsync(int courseId)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _courseService.DeleteCourseAsync(courseId, userId);
+        return RedirectToPage();
+    }
 }
