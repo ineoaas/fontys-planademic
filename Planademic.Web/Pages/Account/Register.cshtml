@@ -1,8 +1,8 @@
-﻿@page
-@model Planademic.Web.Pages.Account.LoginModel
+@page
+@model Planademic.Web.Pages.Account.RegisterModel
 @{
     Layout = "_AuthLayout";
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = "Register";
 }
 
 <div class="auth-screen">
@@ -46,8 +46,8 @@
     <!-- Right: form -->
     <div class="auth-right">
         <div class="auth-form-wrap">
-            <h2 class="auth-form-title">Welcome back</h2>
-            <p class="auth-form-sub">Log in to see your study roadmap.</p>
+            <h2 class="auth-form-title">Create account</h2>
+            <p class="auth-form-sub">Sign up as a student to get started.</p>
 
             <form method="post" class="auth-form">
                 @Html.AntiForgeryToken()
@@ -57,24 +57,23 @@
                     <div class="auth-error">@Model.ErrorMessage</div>
                 }
 
-                <div class="field-group" style="margin-bottom: 1rem;">
-                    <p class="field-label">I am a</p>
-                    <div class="role-toggle">
-                        <label class="role-opt">
-                            <input type="radio" name="Role" value="Student" checked />
-                            <span>Student</span>
-                        </label>
-                        <label class="role-opt">
-                            <input type="radio" name="Role" value="Teacher" />
-                            <span>Teacher</span>
-                        </label>
+                <div style="display:flex; gap:0.75rem;">
+                    <div class="field-group" style="flex:1">
+                        <label class="field-label" for="firstName">First name</label>
+                        <input class="field-input" type="text" id="firstName" name="FirstName"
+                               placeholder="Jane" value="@Model.FirstName" />
+                    </div>
+                    <div class="field-group" style="flex:1">
+                        <label class="field-label" for="lastName">Last name</label>
+                        <input class="field-input" type="text" id="lastName" name="LastName"
+                               placeholder="Doe" value="@Model.LastName" />
                     </div>
                 </div>
 
                 <div class="field-group">
                     <label class="field-label" for="email">Email address</label>
                     <input class="field-input" type="email" id="email" name="Email"
-                           placeholder="you@student.fontys.nl" />
+                           placeholder="you@student.fontys.nl" value="@Model.Email" />
                 </div>
 
                 <div class="field-group">
@@ -83,12 +82,18 @@
                            placeholder="••••••••" />
                 </div>
 
+                <div class="field-group">
+                    <label class="field-label" for="confirmPassword">Confirm password</label>
+                    <input class="field-input" type="password" id="confirmPassword" name="ConfirmPassword"
+                           placeholder="••••••••" />
+                </div>
+
                 <button type="submit" class="btn btn-primary btn-full btn-lg">
-                    Log in →
+                    Create account →
                 </button>
 
                 <p class="auth-switch">
-                    No account? <a asp-page="/Account/Register">Register here</a>
+                    Already have an account? <a asp-page="/Account/Login">Log in here</a>
                 </p>
             </form>
         </div>

@@ -3,115 +3,145 @@
 @{
     ViewData["Title"] = "My Courses";
     ViewData["ActivePage"] = "Courses";
+
+    var colors = new[] { "#818cf8", "#4caf7d", "#f5a623", "#e85d75", "#38bdf8", "#a78bfa" };
 }
 
 @section TopbarActions {
-    <button class="btn btn-primary btn-sm" id="joinCourseBtn">+ Join course</button>
+    @if (User.IsInRole("Teacher"))
+    {
+        <button class="btn btn-primary btn-sm" id="createCourseBtn">+ Create course</button>
+    }
+    else
+    {
+        <button class="btn btn-primary btn-sm" id="joinCourseBtn">+ Join course</button>
+    }
 }
 
+@* Join modal (students) *@
 <div class="modal-overlay" id="joinModal">
     <div class="modal">
         <div class="modal-header">
             <span class="modal-title">Join a course</span>
-            <button class="modal-close" id="closeModal">✕</button>
+            <button class="modal-close" id="closeJoinModal">✕</button>
         </div>
-        <div class="modal-body">
-            <p class="modal-hint">Ask your teacher for the course join code.</p>
-            <div class="field-group">
-                <label class="field-label" for="joinCode">Join code</label>
-                <input class="field-input" id="joinCode" type="text" placeholder="e.g. SD-4829" />
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-ghost btn-sm" id="cancelJoin">Cancel</button>
-            <button class="btn btn-primary btn-sm" disabled>Join course</button>
-        </div>
-    </div>
-</div>
-
-<div class="course-grid">
-
-    <div class="course-card">
-        <div class="course-color-bar" style="background: #818cf8;"></div>
-        <div class="course-body">
-            <div class="course-name">Software Design</div>
-            <div class="course-teacher">Dr. van den Berg</div>
-            <div class="course-progress-row">
-                <div class="progress-track">
-                    <div class="progress-fill" style="width: 25%; background: #818cf8;"></div>
+        <form method="post" asp-page-handler="Join">
+            <div class="modal-body">
+                @if (Model.ErrorMessage != null)
+                {
+                    <p class="field-error">@Model.ErrorMessage</p>
+                }
+                <p class="modal-hint">Ask your teacher for the course join code.</p>
+                <div class="field-group">
+                    <label class="field-label" for="joinCodeInput">Join code</label>
+                    <input class="field-input" id="joinCodeInput" name="JoinCode" type="text" placeholder="e.g. ABC123" />
                 </div>
-<<<<<<< Updated upstream
                 <span class="progress-label">1/4</span>
             </div>
             <div class="course-stats">
                 <span><strong>4</strong> tasks</span>
                 <span><strong>3</strong> pending</span>
-=======
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost btn-sm" id="cancelJoin">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Join course</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Create modal (teachers) *@
+<div class="modal-overlay" id="createModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">Create a course</span>
+            <button class="modal-close" id="closeCreateModal">✕</button>
+        </div>
+        <form method="post" asp-page-handler="Create">
+            <div class="modal-body">
+                @if (Model.ErrorMessage != null)
+                {
+                    <p class="field-error">@Model.ErrorMessage</p>
+                }
+                <div class="field-group">
+                    <label class="field-label" for="courseNameInput">Course name</label>
+                    <input class="field-input" id="courseNameInput" name="CourseName" type="text" placeholder="e.g. Software Design" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost btn-sm" id="cancelCreate">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Create course</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="course-grid">
+
+    @foreach (var (course, i) in Model.Courses.Select((c, i) => (c, i)))
+    {
+        var color = colors[i % colors.Length];
+        <div class="course-card">
+            <div class="course-color-bar" style="background: @color;"></div>
+            <div class="course-body">
+                <div class="course-name">@course.Name</div>
                 @if (User.IsInRole("Teacher"))
                 {
-                    <form method="post" asp-page-handler="Delete" style="margin-top: 0.75rem;">
-                        <input type="hidden" name="courseId" value="@course.Id" />
-                        <button type="submit" class="btn btn-ghost btn-sm" style="color: #e85d75;"
-                                onclick="return confirm('Delete &quot;@course.Name&quot;? This will also delete all its tasks and enrollments.')">
-                            Delete
-                        </button>
-                    </form>
+                    <div class="course-teacher">Join code: <strong>@course.JoinCode</strong></div>
                 }
->>>>>>> Stashed changes
-            </div>
-        </div>
-    </div>
-
-    <div class="course-card">
-        <div class="course-color-bar" style="background: #4caf7d;"></div>
-        <div class="course-body">
-            <div class="course-name">Professional Skills</div>
-            <div class="course-teacher">Ms. Janssen</div>
-            <div class="course-progress-row">
-                <div class="progress-track">
-                    <div class="progress-fill" style="width: 100%; background: #4caf7d;"></div>
+                <div class="course-stats" style="margin-top: auto;">
+                    <span>Created @course.CreatedAt.ToString("MMM d")</span>
                 </div>
-                <span class="progress-label">2/2</span>
-            </div>
-            <div class="course-stats">
-                <span><strong>2</strong> tasks</span>
-                <span><strong>0</strong> pending</span>
             </div>
         </div>
-    </div>
+    }
 
-    <div class="course-card">
-        <div class="course-color-bar" style="background: #f5a623;"></div>
-        <div class="course-body">
-            <div class="course-name">Databases</div>
-            <div class="course-teacher">Mr. Pietersen</div>
-            <div class="course-progress-row">
-                <div class="progress-track">
-                    <div class="progress-fill" style="width: 0%; background: #f5a623;"></div>
-                </div>
-                <span class="progress-label">0/3</span>
-            </div>
-            <div class="course-stats">
-                <span><strong>3</strong> tasks</span>
-                <span><strong>3</strong> pending</span>
-            </div>
+    @if (!Model.Courses.Any())
+    {
+        <p style="color: var(--text-muted); grid-column: 1/-1;">
+            @(User.IsInRole("Teacher") ? "No courses yet. Create your first course!" : "You have not joined any courses yet.")
+        </p>
+    }
+
+    @if (User.IsInRole("Student"))
+    {
+        <div class="course-card course-card-add" id="joinCourseBtn2">
+            <span class="add-plus">＋</span>
+            <span class="add-label">Join a course</span>
         </div>
-    </div>
-
-    <div class="course-card course-card-add" id="joinCourseBtn2">
-        <span class="add-plus">＋</span>
-        <span class="add-label">Join a course</span>
-    </div>
+    }
 
 </div>
 
 @section Scripts {
 <script>
-    const overlay   = document.getElementById('joinModal');
-    const openBtns  = [document.getElementById('joinCourseBtn'), document.getElementById('joinCourseBtn2')];
-    const closeBtns = [document.getElementById('closeModal'), document.getElementById('cancelJoin')];
-    openBtns.forEach(b => b?.addEventListener('click', () => overlay.classList.add('open')));
-    closeBtns.forEach(b => b?.addEventListener('click', () => overlay.classList.remove('open')));
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+    // Join modal
+    const joinOverlay  = document.getElementById('joinModal');
+    const joinOpeners  = [document.getElementById('joinCourseBtn'), document.getElementById('joinCourseBtn2')].filter(Boolean);
+    const joinClosers  = [document.getElementById('closeJoinModal'), document.getElementById('cancelJoin')];
+    joinOpeners.forEach(b => b?.addEventListener('click', () => joinOverlay?.classList.add('open')));
+    joinClosers.forEach(b => b?.addEventListener('click', () => joinOverlay?.classList.remove('open')));
+    joinOverlay?.addEventListener('click', e => { if (e.target === joinOverlay) joinOverlay.classList.remove('open'); });
+
+    // Create modal
+    const createOverlay = document.getElementById('createModal');
+    const createOpener  = document.getElementById('createCourseBtn');
+    const createClosers = [document.getElementById('closeCreateModal'), document.getElementById('cancelCreate')];
+    createOpener?.addEventListener('click', () => createOverlay?.classList.add('open'));
+    createClosers.forEach(b => b?.addEventListener('click', () => createOverlay?.classList.remove('open')));
+    createOverlay?.addEventListener('click', e => { if (e.target === createOverlay) createOverlay.classList.remove('open'); });
+
+    // Re-open modal if there was a validation error
+    @if (Model.ErrorMessage != null)
+    {
+        if (User.IsInRole("Teacher"))
+        {
+            <text>document.addEventListener('DOMContentLoaded', () => createOverlay?.classList.add('open'));</text>
+        }
+        else
+        {
+            <text>document.addEventListener('DOMContentLoaded', () => joinOverlay?.classList.add('open'));</text>
+        }
+    }
 </script>
 }

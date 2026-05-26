@@ -6,103 +6,31 @@
 }
 
 @section TopbarActions {
-    <button class="btn btn-primary btn-sm">+ Add assignment</button>
+    <a asp-page="/Courses/Index" class="btn btn-primary btn-sm">+ Create course</a>
 }
 
-<div class="card" style="margin-bottom: 1.25rem;">
-    <div class="card-header">
-        <span class="card-title">Software Design — assignments</span>
-    </div>
-    <div class="card-body p0">
+@if (!Model.Courses.Any())
+{
+    <p style="color: var(--text-muted);">No courses yet. <a asp-page="/Courses/Index">Create your first course.</a></p>
+}
 
-        <div class="assign-table-head">
-            <span class="at-col-main">Title</span>
-            <span class="at-col">Deadline</span>
-            <span class="at-col">Complexity</span>
-            <span class="at-col">Students</span>
+@foreach (var course in Model.Courses)
+{
+    <div class="card" style="margin-bottom: 1.25rem;">
+        <div class="card-header">
+            <span class="card-title">@course.Name</span>
         </div>
-
-        <div class="assign-row">
-            <span class="at-col-main task-name">Research essay draft</span>
-            <span class="at-col at-meta">Apr 16</span>
-            <span class="at-col">
-                <div class="complexity-inline">
-                    <div class="cbadge cbadge-high cbadge-sm">9</div>
-                    <div class="complexity-bar-wrap"><div class="complexity-bar" style="width:90%;background:var(--red)"></div></div>
+        <div class="card-body">
+            <div class="course-detail-row">
+                <div class="course-detail-item">
+                    <span class="detail-label">Join code</span>
+                    <span class="detail-value detail-code">@course.JoinCode</span>
                 </div>
-            </span>
-            <span class="at-col at-meta">12 enrolled</span>
-        </div>
-
-        <div class="assign-row">
-            <span class="at-col-main task-name">UML class diagram</span>
-            <span class="at-col at-meta">Apr 18</span>
-            <span class="at-col">
-                <div class="complexity-inline">
-                    <div class="cbadge cbadge-high cbadge-sm">8</div>
-                    <div class="complexity-bar-wrap"><div class="complexity-bar" style="width:80%;background:var(--red)"></div></div>
+                <div class="course-detail-item">
+                    <span class="detail-label">Created</span>
+                    <span class="detail-value">@course.CreatedAt.ToString("MMM d, yyyy")</span>
                 </div>
-            </span>
-            <span class="at-col at-meta">12 enrolled</span>
-        </div>
-
-        <div class="assign-row">
-            <span class="at-col-main task-name">Weekly reflection #3</span>
-            <span class="at-col at-meta">Apr 21</span>
-            <span class="at-col">
-                <div class="complexity-inline">
-                    <div class="cbadge cbadge-low cbadge-sm">3</div>
-                    <div class="complexity-bar-wrap"><div class="complexity-bar" style="width:30%;background:var(--green)"></div></div>
-                </div>
-            </span>
-            <span class="at-col at-meta">12 enrolled</span>
-        </div>
-
-        <div class="assign-row">
-            <span class="at-col-main task-name">Database schema design</span>
-            <span class="at-col at-meta">Apr 23</span>
-            <span class="at-col">
-                <div class="complexity-inline">
-                    <div class="cbadge cbadge-med cbadge-sm">6</div>
-                    <div class="complexity-bar-wrap"><div class="complexity-bar" style="width:60%;background:var(--yellow)"></div></div>
-                </div>
-            </span>
-            <span class="at-col at-meta">12 enrolled</span>
-        </div>
-
-        <div class="assign-row assign-row-last">
-            <span class="at-col-main task-name">Sprint review slides</span>
-            <span class="at-col at-meta">Apr 28</span>
-            <span class="at-col">
-                <div class="complexity-inline">
-                    <div class="cbadge cbadge-med cbadge-sm">4</div>
-                    <div class="complexity-bar-wrap"><div class="complexity-bar" style="width:40%;background:var(--yellow)"></div></div>
-                </div>
-            </span>
-            <span class="at-col at-meta">12 enrolled</span>
-        </div>
-
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-header">
-        <span class="card-title">Course details</span>
-    </div>
-    <div class="card-body">
-        <div class="course-detail-row">
-            <div class="course-detail-item">
-                <span class="detail-label">Join code</span>
-                <span class="detail-value detail-code">SD-4829</span>
-            </div>
-            <div class="course-detail-item">
-                <span class="detail-label">Enrolled students</span>
-                <span class="detail-value">12</span>
-            </div>
-            <div class="course-detail-item">
-                <span class="detail-label">Assignments</span>
-                <span class="detail-value">5</span>
             </div>
         </div>
     </div>
-</div>
+}

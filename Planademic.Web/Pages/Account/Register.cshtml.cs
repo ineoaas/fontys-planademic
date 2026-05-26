@@ -8,15 +8,22 @@ using Planademic.BLL.Services;
 
 namespace Planademic.Web.Pages.Account;
 
-public class LoginModel : PageModel
+public class RegisterModel : PageModel
 {
     private readonly IUserService _userService;
-    private const string HardcodedTeacherEmail = "justinleomaas@gmail.com";
 
-    public LoginModel(IUserService userService)
+    public RegisterModel(IUserService userService)
     {
         _userService = userService;
     }
+
+    [BindProperty]
+    [Required(ErrorMessage = "First name is required.")]
+    public string FirstName { get; set; } = string.Empty;
+
+    [BindProperty]
+    [Required(ErrorMessage = "Last name is required.")]
+    public string LastName { get; set; } = string.Empty;
 
     [BindProperty]
     [Required(ErrorMessage = "Email is required.")]
@@ -25,10 +32,12 @@ public class LoginModel : PageModel
 
     [BindProperty]
     [Required(ErrorMessage = "Password is required.")]
+    [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
     public string Password { get; set; } = string.Empty;
 
     [BindProperty]
-    public string Role { get; set; } = "Student";
+    [Required(ErrorMessage = "Please confirm your password.")]
+    public string ConfirmPassword { get; set; } = string.Empty;
 
     public string? ErrorMessage { get; set; }
 
@@ -45,25 +54,25 @@ public class LoginModel : PageModel
             return Page();
         }
 
-        if (Role == "Teacher" &&
-            !Email.Equals(HardcodedTeacherEmail, StringComparison.OrdinalIgnoreCase))
+        if (Password != ConfirmPassword)
         {
-            ErrorMessage = "Only authorized teachers can log in.";
+            ErrorMessage = "Passwords do not match.";
             return Page();
         }
 
-        var user = await _userService.ValidateLoginAsync(Email, Password, Role);
-        if (user == null)
+        var (success, error, user) = await _userService.RegisterAsync(Email, Password, FirstName, LastName);
+        if (!success)
         {
-            ErrorMessage = "Invalid email or password.";
+            ErrorMessage = error;
             return Page();
         }
+
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name,  $"{user.FirstName} {user.LastName}"),
-            new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role,  user.Role),
+            new(ClaimTypes.NameIdentifier, user!.Id.ToString()),
+            new(ClaimTypes.Name,  $"{FirstName} {LastName}"),
+            new(ClaimTypes.Email, Email),
+            new(ClaimTypes.Role,  "Student"),
         };
 
         var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -71,8 +80,6 @@ public class LoginModel : PageModel
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-        return user.Role == "Teacher"
-            ? RedirectToPage("/Teacher/Dashboard")
-            : RedirectToPage("/Dashboard");
+        return RedirectToPage("/Dashboard");
     }
 }

@@ -822,6 +822,15 @@ em { font-style: italic; color: var(--accent); }
     margin-bottom: 1.75rem;
 }
 .auth-form { display: flex; flex-direction: column; }
+.auth-error {
+    background: var(--red-bg);
+    border: 1px solid var(--red);
+    color: var(--red);
+    border-radius: var(--radius);
+    padding: .6rem .9rem;
+    font-size: .82rem;
+    margin-bottom: .75rem;
+}
 .auth-switch {
     text-align: center;
     font-size: .78rem;

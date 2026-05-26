@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Planademic.DAL\Planademic.DAL.csproj" />
+    <ProjectReference Include="..\Planademic.Domain\Planademic.Domain.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
