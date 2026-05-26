@@ -1,0 +1,139 @@
+@page
+@model Planademic.Web.Pages.CourseTasks.IndexModel
+@{
+    ViewData["Title"] = "Course Tasks";
+    ViewData["ActivePage"] = "CourseTasks";
+}
+
+@if (!User.IsInRole("Teacher"))
+{
+    <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
+        <svg style="width:48px;height:48px;margin-bottom:1rem;opacity:.4;" viewBox="0 0 24 24" fill="none"><path d="M12 2a5 5 0 1 1 0 10A5 5 0 0 1 12 2zm0 12c5.33 0 8 2.67 8 4v2H4v-2c0-1.33 2.67-4 8-4z" fill="currentColor"/></svg>
+        <p style="font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">Teacher access only</p>
+        <p>This page is for teachers to manage course assignments.</p>
+    </div>
+    return;
+}
+
+@section TopbarActions {
+    <button class="btn btn-primary btn-sm" id="createTaskBtn">+ Create task</button>
+}
+
+@* Create task modal *@
+<div class="modal-overlay" id="createTaskModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">Create a task</span>
+            <button class="modal-close" id="closeCreateTaskModal">✕</button>
+        </div>
+        <form method="post" asp-page-handler="Create">
+            <div class="modal-body">
+                @if (Model.ErrorMessage != null)
+                {
+                    <p class="field-error">@Model.ErrorMessage</p>
+                }
+                <div class="field-group">
+                    <label class="field-label" for="courseSelect">Course</label>
+                    <select class="field-input" id="courseSelect" name="CourseId">
+                        @foreach (var course in Model.Courses)
+                        {
+                            <option value="@course.Id" selected="@(course.Id == Model.SelectedCourseId)">@course.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="titleInput">Title</label>
+                    <input class="field-input" id="titleInput" name="Title" type="text" placeholder="e.g. Implement login feature" />
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="descriptionInput">Description</label>
+                    <textarea class="field-input" id="descriptionInput" name="Description" rows="3" placeholder="Describe the task..."></textarea>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="complexityInput">Complexity (1–10)</label>
+                    <input class="field-input" id="complexityInput" name="Complexity" type="number" min="1" max="10" placeholder="e.g. 5" />
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="deadlineInput">Deadline</label>
+                    <input class="field-input" id="deadlineInput" name="Deadline" type="datetime-local" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost btn-sm" id="cancelCreateTask">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Create task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!Model.Courses.Any())
+{
+    <p style="color: var(--text-muted);">You have no courses yet. Create a course first before adding tasks.</p>
+}
+else
+{
+    @* Course filter tabs *@
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        @foreach (var course in Model.Courses)
+        {
+            var isActive = course.Id == Model.SelectedCourseId;
+            <a href="?SelectedCourseId=@course.Id"
+               class="btn btn-sm @(isActive ? "btn-primary" : "btn-ghost")"
+               style="text-decoration: none;">
+                @course.Name
+            </a>
+        }
+    </div>
+
+    <div class="course-grid">
+        @foreach (var assignment in Model.Assignments)
+        {
+            var courseName = Model.Courses.FirstOrDefault(c => c.Id == assignment.CourseId)?.Name ?? "";
+            var isOverdue = assignment.Deadline < DateTime.Now;
+            <div class="course-card">
+                <div class="course-color-bar" style="background: #818cf8;"></div>
+                <div class="course-body">
+                    <div class="course-name">@assignment.Title</div>
+                    <div class="course-teacher" style="color: var(--text-muted); font-size: 0.8rem;">@courseName</div>
+                    <div class="course-teacher">@assignment.Description</div>
+                    <div class="course-stats" style="margin-top: auto;">
+                        <span>Complexity: <strong>@assignment.Complexity/10</strong></span>
+                        <span style="color: @(isOverdue ? "#e85d75" : "inherit");">
+                            @(isOverdue ? "Overdue" : "Due") @assignment.Deadline.ToString("MMM d, yyyy")
+                        </span>
+                    </div>
+                    <form method="post" asp-page-handler="Delete" style="margin-top: 0.75rem;">
+                        <input type="hidden" name="assignmentId" value="@assignment.Id" />
+                        <input type="hidden" name="selectedCourseId" value="@Model.SelectedCourseId" />
+                        <button type="submit" class="btn btn-ghost btn-sm" style="color: #e85d75;"
+                                onclick="return confirm('Delete task &quot;@assignment.Title&quot;? This will also remove it from any students who assigned it.')">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+
+        @if (!Model.Assignments.Any())
+        {
+            <p style="color: var(--text-muted); grid-column: 1/-1;">No tasks yet for this course. Create your first task!</p>
+        }
+    </div>
+}
+
+@section Scripts {
+<script>
+    const overlay = document.getElementById('createTaskModal');
+    const opener  = document.getElementById('createTaskBtn');
+    const closers = [document.getElementById('closeCreateTaskModal'), document.getElementById('cancelCreateTask')];
+
+    opener?.addEventListener('click', () => overlay?.classList.add('open'));
+    closers.forEach(b => b?.addEventListener('click', () => overlay?.classList.remove('open')));
+    overlay?.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+    @if (Model.ErrorMessage != null)
+    {
+        <text>document.addEventListener('DOMContentLoaded', () => overlay?.classList.add('open'));</text>
+    }
+</script>
+}
