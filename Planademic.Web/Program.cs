@@ -18,6 +18,10 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<ICourseTaskRepository, CourseTaskRepository>();
+builder.Services.AddScoped<ICourseTaskService, CourseTaskService>();
+builder.Services.AddScoped<IStudentTaskRepository, StudentTaskRepository>();
+builder.Services.AddScoped<IStudentTaskService, StudentTaskService>();
 
 // Set up cookie-based authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
