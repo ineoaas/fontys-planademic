@@ -9,4 +9,5 @@ public interface ICourseRepository
     Task<List<Course>> GetByUserIdAsync(int userId);
     Task AddEnrollmentAsync(CourseEnrollment enrollment);
     Task<bool> IsEnrolledAsync(int courseId, int studentId);
+    Task<bool> DeleteAsync(int courseId, int teacherId);
 }
