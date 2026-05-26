@@ -10,6 +10,7 @@ public class PlanademicDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<CourseEnrollment> Enrollments => Set<CourseEnrollment>();
+    public DbSet<CourseTask> CourseTasks => Set<CourseTask>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +43,19 @@ public class PlanademicDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => new { e.CourseId, e.StudentId }).IsUnique();
             entity.Property(e => e.EnrolledAt).HasDefaultValueSql("GETDATE()");
+        });
+
+        modelBuilder.Entity<CourseTask>(entity =>
+        {
+            entity.ToTable("CourseTasks");
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.Title).HasMaxLength(200).IsRequired();
+            entity.Property(t => t.Description).HasMaxLength(2000).IsRequired();
+            entity.Property(t => t.ComplexityScore).IsRequired();
+            entity.Property(t => t.Deadline).IsRequired();
+            entity.Property(t => t.CourseId).IsRequired();
+            entity.Property(t => t.CreatedByTeacherId).IsRequired();
+            entity.Property(t => t.CreatedAt).HasDefaultValueSql("GETDATE()");
         });
     }
 }
