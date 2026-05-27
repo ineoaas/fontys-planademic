@@ -9,6 +9,8 @@
     <button class="btn btn-primary btn-sm" id="saveAvail" disabled>Save changes</button>
 }
 
+@Html.AntiForgeryToken()
+
 <p class="page-hint">Click slots to toggle your free time. The scheduling engine uses this to build your study roadmap.</p>
 
 <div class="card">
@@ -23,59 +25,21 @@
             <div class="ag-cell ag-header">Sat</div>
             <div class="ag-cell ag-header">Sun</div>
 
-            <div class="ag-cell ag-time">08:00 – 10:00</div>
-            <div class="ag-cell ag-slot active" data-day="0" data-slot="0"><span>Free</span></div>
-            <div class="ag-cell ag-slot"        data-day="1" data-slot="0"></div>
-            <div class="ag-cell ag-slot active" data-day="2" data-slot="0"><span>Free</span></div>
-            <div class="ag-cell ag-slot"        data-day="3" data-slot="0"></div>
-            <div class="ag-cell ag-slot"        data-day="4" data-slot="0"></div>
-            <div class="ag-cell ag-slot"        data-day="5" data-slot="0"></div>
-            <div class="ag-cell ag-slot"        data-day="6" data-slot="0"></div>
+            @{
+                var timeLabels = new[] { "08:00 – 10:00", "10:00 – 12:00", "12:00 – 14:00", "14:00 – 16:00", "16:00 – 18:00", "18:00 – 20:00" };
+            }
 
-            <div class="ag-cell ag-time">10:00 – 12:00</div>
-            <div class="ag-cell ag-slot active" data-day="0" data-slot="1"><span>Free</span></div>
-            <div class="ag-cell ag-slot active" data-day="1" data-slot="1"><span>Free</span></div>
-            <div class="ag-cell ag-slot"        data-day="2" data-slot="1"></div>
-            <div class="ag-cell ag-slot active" data-day="3" data-slot="1"><span>Free</span></div>
-            <div class="ag-cell ag-slot"        data-day="4" data-slot="1"></div>
-            <div class="ag-cell ag-slot"        data-day="5" data-slot="1"></div>
-            <div class="ag-cell ag-slot"        data-day="6" data-slot="1"></div>
-
-            <div class="ag-cell ag-time">12:00 – 14:00</div>
-            <div class="ag-cell ag-slot" data-day="0" data-slot="2"></div>
-            <div class="ag-cell ag-slot" data-day="1" data-slot="2"></div>
-            <div class="ag-cell ag-slot" data-day="2" data-slot="2"></div>
-            <div class="ag-cell ag-slot" data-day="3" data-slot="2"></div>
-            <div class="ag-cell ag-slot" data-day="4" data-slot="2"></div>
-            <div class="ag-cell ag-slot" data-day="5" data-slot="2"></div>
-            <div class="ag-cell ag-slot" data-day="6" data-slot="2"></div>
-
-            <div class="ag-cell ag-time">14:00 – 16:00</div>
-            <div class="ag-cell ag-slot active" data-day="0" data-slot="3"><span>Free</span></div>
-            <div class="ag-cell ag-slot active" data-day="1" data-slot="3"><span>Free</span></div>
-            <div class="ag-cell ag-slot active" data-day="2" data-slot="3"><span>Free</span></div>
-            <div class="ag-cell ag-slot"        data-day="3" data-slot="3"></div>
-            <div class="ag-cell ag-slot active" data-day="4" data-slot="3"><span>Free</span></div>
-            <div class="ag-cell ag-slot"        data-day="5" data-slot="3"></div>
-            <div class="ag-cell ag-slot"        data-day="6" data-slot="3"></div>
-
-            <div class="ag-cell ag-time">16:00 – 18:00</div>
-            <div class="ag-cell ag-slot"        data-day="0" data-slot="4"></div>
-            <div class="ag-cell ag-slot active" data-day="1" data-slot="4"><span>Free</span></div>
-            <div class="ag-cell ag-slot"        data-day="2" data-slot="4"></div>
-            <div class="ag-cell ag-slot"        data-day="3" data-slot="4"></div>
-            <div class="ag-cell ag-slot active" data-day="4" data-slot="4"><span>Free</span></div>
-            <div class="ag-cell ag-slot"        data-day="5" data-slot="4"></div>
-            <div class="ag-cell ag-slot"        data-day="6" data-slot="4"></div>
-
-            <div class="ag-cell ag-time">18:00 – 20:00</div>
-            <div class="ag-cell ag-slot"        data-day="0" data-slot="5"></div>
-            <div class="ag-cell ag-slot"        data-day="1" data-slot="5"></div>
-            <div class="ag-cell ag-slot"        data-day="2" data-slot="5"></div>
-            <div class="ag-cell ag-slot active" data-day="3" data-slot="5"><span>Free</span></div>
-            <div class="ag-cell ag-slot"        data-day="4" data-slot="5"></div>
-            <div class="ag-cell ag-slot"        data-day="5" data-slot="5"></div>
-            <div class="ag-cell ag-slot"        data-day="6" data-slot="5"></div>
+            @for (int slot = 0; slot < 6; slot++)
+            {
+                <div class="ag-cell ag-time">@timeLabels[slot]</div>
+                @for (int day = 0; day < 7; day++)
+                {
+                    bool active = Model.SavedSlots.Contains((day, slot));
+                    <div class="ag-cell ag-slot @(active ? "active" : "")" data-day="@day" data-slot="@slot">
+                        @if (active) { <span>Free</span> }
+                    </div>
+                }
+            }
         </div>
 
         <div class="avail-legend">
@@ -92,12 +56,33 @@
 @section Scripts {
 <script>
     const saveBtn = document.getElementById('saveAvail');
+
     document.querySelectorAll('.ag-slot').forEach(cell => {
         cell.addEventListener('click', () => {
             cell.classList.toggle('active');
             cell.innerHTML = cell.classList.contains('active') ? '<span>Free</span>' : '';
             if (saveBtn) saveBtn.disabled = false;
         });
+    });
+
+    saveBtn.addEventListener('click', async () => {
+        const slots = [];
+        document.querySelectorAll('.ag-slot.active').forEach(cell => {
+            slots.push({ day: parseInt(cell.dataset.day), slot: parseInt(cell.dataset.slot) });
+        });
+
+        const response = await fetch('?handler=Save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? ''
+            },
+            body: JSON.stringify(slots)
+        });
+
+        if (response.ok) {
+            saveBtn.disabled = true;
+        }
     });
 </script>
 }
