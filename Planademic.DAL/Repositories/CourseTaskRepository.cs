@@ -44,11 +44,15 @@ public class CourseTaskRepository : ICourseTaskRepository
         if (assignment == null)
             return false;
 
-        // Remove student tasks referencing this assignment first
         var relatedTasks = await _context.Tasks
             .Where(t => t.AssignmentId == assignmentId)
             .ToListAsync();
-        _context.Tasks.RemoveRange(relatedTasks);
+
+        if (relatedTasks.Count > 0)
+        {
+            _context.Tasks.RemoveRange(relatedTasks);
+            await _context.SaveChangesAsync();
+        }
 
         _context.Assignments.Remove(assignment);
         await _context.SaveChangesAsync();
