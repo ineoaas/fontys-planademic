@@ -25,6 +25,7 @@ public class CourseTaskRepository : ICourseTaskRepository
             .ToListAsync();
     }
 
+// This method finds all courses the student is enrolled in in two steps but in one query.
     public async Task<List<Assignment>> GetByEnrolledStudentAsync(int studentId)
     {
         var enrolledCourseIds = _context.Enrollments
@@ -36,6 +37,7 @@ public class CourseTaskRepository : ICourseTaskRepository
             .ToListAsync();
     }
 
+// Delete student tasks related to the assignment, then delete the assignment.
     public async Task<bool> DeleteAsync(int assignmentId)
     {
         var assignment = await _context.Assignments

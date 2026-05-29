@@ -8,6 +8,8 @@ public class StudentTask
     public string Title { get; set; } = string.Empty;
     public DateTime Deadline { get; set; }
     public int Complexity { get; set; }
+
+    // stores in the same table as StudentTask, but only for personal tasks (not linked to an assignment)
     public bool IsPersonal { get; set; }
     public bool IsCompleted { get; set; }
     public decimal? PriorityScore { get; set; }
