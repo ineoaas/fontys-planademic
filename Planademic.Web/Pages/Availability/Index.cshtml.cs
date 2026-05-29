@@ -10,7 +10,8 @@ namespace Planademic.Web.Pages.Availability
     public class IndexModel : PageModel
     {
         private readonly IAvailabilityService _availabilityService;
-
+        
+        // HashSet used to check instantly if a slot is selected. Saves the need to loop through big list
         public HashSet<(int Day, int Slot)> SavedSlots { get; private set; } = [];
 
         public IndexModel(IAvailabilityService availabilityService)
