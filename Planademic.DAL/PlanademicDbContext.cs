@@ -12,6 +12,7 @@ public class PlanademicDbContext : DbContext
     public DbSet<CourseEnrollment> Enrollments => Set<CourseEnrollment>();
     public DbSet<Assignment> Assignments => Set<Assignment>();
     public DbSet<StudentTask> Tasks => Set<StudentTask>();
+    public DbSet<AvailabilitySlot> AvailabilitySlots => Set<AvailabilitySlot>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,6 +72,17 @@ public class PlanademicDbContext : DbContext
             entity.Property(t => t.IsCompleted).IsRequired();
             entity.Property(t => t.PriorityScore).HasColumnType("decimal(10,2)");
             entity.Property(t => t.CreatedAt).HasDefaultValueSql("GETDATE()");
+        });
+
+        modelBuilder.Entity<AvailabilitySlot>(entity =>
+        {
+            entity.ToTable("AvailabilitySlots");
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.StudentId).IsRequired();
+            entity.Property(a => a.DayOfWeek).IsRequired();
+            entity.Property(a => a.StartTime).IsRequired();
+            entity.Property(a => a.EndTime).IsRequired();
+            entity.Property(a => a.IsRecurring).IsRequired();
         });
     }
 }

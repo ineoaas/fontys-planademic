@@ -42,6 +42,8 @@ public class IndexModel : PageModel
         MyTasks = await _taskService.GetByStudentIdAsync(userId);
     }
 
+// This is when a student click assign to me button, it will fetch the assignment object.
+// If the assignment exist, it will create a new student task with the assignment details and save it to database.
     public async Task<IActionResult> OnPostAssignAsync()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

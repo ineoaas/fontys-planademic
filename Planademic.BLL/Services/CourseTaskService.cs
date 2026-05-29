@@ -12,6 +12,7 @@ public class CourseTaskService : ICourseTaskService
         _taskRepo = taskRepo;
     }
 
+// This method is the same as the StudentTaskService one.
     public async Task<(bool Success, string? Error)> CreateCourseTaskAsync(string title, string description, int complexity, DateTime deadline, int courseId)
     {
         if (string.IsNullOrWhiteSpace(title))

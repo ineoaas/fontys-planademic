@@ -25,6 +25,7 @@ public class StudentTaskRepository : IStudentTaskRepository
             .ToListAsync();
     }
 
+// fetch the object from database, mutate the property, and then call save changes.
     public async Task<bool> MarkCompleteAsync(int taskId, int studentId)
     {
         var task = await _context.Tasks

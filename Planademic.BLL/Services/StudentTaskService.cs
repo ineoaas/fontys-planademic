@@ -12,6 +12,7 @@ public class StudentTaskService : IStudentTaskService
         _taskRepo = taskRepo;
     }
 
+// Checks if title is not empty, complexity between 1-10, and deadline must be in the future
     public async Task<(bool Success, string? Error)> CreateStudentTaskAsync(string title, int complexity, DateTime deadline, int studentId, int? assignmentId)
     {
         if (string.IsNullOrWhiteSpace(title))
@@ -45,6 +46,7 @@ public class StudentTaskService : IStudentTaskService
         return await _taskRepo.GetByStudentIdAsync(studentId);
     }
 
+// Both check if the task belongs to the student through the repository.
     public async Task<bool> MarkCompleteAsync(int taskId, int studentId)
     {
         return await _taskRepo.MarkCompleteAsync(taskId, studentId);

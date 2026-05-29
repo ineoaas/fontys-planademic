@@ -19,6 +19,7 @@ public class IndexModel : PageModel
         _courseService = courseService;
     }
 
+// Reads also from the URL query string on a GET request
     [BindProperty(SupportsGet = true)]
     public int SelectedCourseId { get; set; }
 
@@ -41,6 +42,7 @@ public class IndexModel : PageModel
     public List<Course> Courses { get; set; } = [];
     public List<Assignment> Assignments { get; set; } = [];
 
+// This method loads the course list, then figures out which course to show assignments for.
     public async Task OnGetAsync()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -48,6 +50,7 @@ public class IndexModel : PageModel
 
         if (Courses.Count > 0)
         {
+            // if the URL has a course ID and its one of the users courses, use it
             var courseId = Courses.Any(c => c.Id == SelectedCourseId)
                 ? SelectedCourseId
                 : Courses[0].Id;
@@ -57,6 +60,8 @@ public class IndexModel : PageModel
         }
     }
 
+// On sucess, redirect with the course ID.
+// After creating an assignment, you land back on the same course rather than the default first course.
     public async Task<IActionResult> OnPostCreateAsync()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

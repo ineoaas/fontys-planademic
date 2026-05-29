@@ -24,6 +24,8 @@ public class CourseRepository : ICourseRepository
             .FirstOrDefaultAsync(c => c.JoinCode == joinCode);
     }
 
+// This method builds two seperate queries for a the two different roles.
+// Combines the results using Union to return a single list of courses.
     public async Task<List<Course>> GetByUserIdAsync(int userId)
     {
         var teacherCourses = _context.Courses.Where(c => c.TeacherId == userId);
@@ -49,6 +51,7 @@ public class CourseRepository : ICourseRepository
             .AnyAsync(e => e.CourseId == courseId && e.StudentId == studentId);
     }
 
+// first deletes student tasks, then assignments, then enrollments, then the course.
     public async Task<bool> DeleteAsync(int courseId, int teacherId)
     {
         var course = await _context.Courses
@@ -57,7 +60,6 @@ public class CourseRepository : ICourseRepository
         if (course == null)
             return false;
 
-        // 1. Delete student tasks linked to this course's assignments
         var assignmentIds = await _context.Assignments
             .Where(a => a.CourseId == courseId)
             .Select(a => a.Id)
@@ -72,21 +74,18 @@ public class CourseRepository : ICourseRepository
             await _context.SaveChangesAsync();
         }
 
-        // 2. Delete assignments
         var assignments = await _context.Assignments
             .Where(a => a.CourseId == courseId)
             .ToListAsync();
         _context.Assignments.RemoveRange(assignments);
         await _context.SaveChangesAsync();
 
-        // 3. Delete enrollments
         var enrollments = await _context.Enrollments
             .Where(e => e.CourseId == courseId)
             .ToListAsync();
         _context.Enrollments.RemoveRange(enrollments);
         await _context.SaveChangesAsync();
 
-        // 4. Delete the course
         _context.Courses.Remove(course);
         await _context.SaveChangesAsync();
         return true;
