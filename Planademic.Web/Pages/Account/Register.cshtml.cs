@@ -17,6 +17,8 @@ public class RegisterModel : PageModel
         _userService = userService;
     }
 
+// These are bind properties. ASP.NET checks these before the code is executed.
+
     [BindProperty]
     [Required(ErrorMessage = "First name is required.")]
     public string FirstName { get; set; } = string.Empty;
@@ -43,6 +45,8 @@ public class RegisterModel : PageModel
 
     public void OnGet() { }
 
+
+// This is the result of the form sumbission. Check model state first so that user has to fill in all the details.
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
@@ -60,12 +64,16 @@ public class RegisterModel : PageModel
             return Page();
         }
 
+// This calls user service to register the user. it uses a tuple to return three values at once.
+
         var (success, error, user) = await _userService.RegisterAsync(Email, Password, FirstName, LastName);
         if (!success)
         {
             ErrorMessage = error;
             return Page();
         }
+
+// This creates the claims for the authenticated user. After it calls the sign in async which creates the cookie.
 
         var claims = new List<Claim>
         {

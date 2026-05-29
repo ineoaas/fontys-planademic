@@ -45,6 +45,7 @@ public class LoginModel : PageModel
             return Page();
         }
 
+// A user must match the harcoded teacher email to loh in as a teacher.
         if (Role == "Teacher" &&
             !Email.Equals(HardcodedTeacherEmail, StringComparison.OrdinalIgnoreCase))
         {
@@ -76,3 +77,5 @@ public class LoginModel : PageModel
             : RedirectToPage("/Dashboard");
     }
 }
+
+// A claim is information about the user that is stored in the cookie.
