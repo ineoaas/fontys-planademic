@@ -12,6 +12,7 @@ public class CourseService : ICourseService
         _courseRepository = courseRepository;
     }
 
+// generates a join code, builds a course, and then saves it to the database.
     public async Task<(bool Success, string? Error)> CreateCourseAsync(string name, int teacherId)
     {
         var joinCode = GenerateJoinCode();
@@ -28,6 +29,7 @@ public class CourseService : ICourseService
         return (true, null);
     }
 
+//checks if the course exists, checks if the student is aready enrolled
     public async Task<(bool Success, string? Error)> JoinCourseAsync(string joinCode, int studentId)
     {
         var course = await _courseRepository.GetByJoinCodeAsync(joinCode.Trim().ToUpper());
@@ -58,7 +60,7 @@ public class CourseService : ICourseService
         return await _courseRepository.DeleteAsync(courseId, teacherId);
     }
 
-
+// not including 1 i and o 0 because they look alike.
     private static string GenerateJoinCode()
     {
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

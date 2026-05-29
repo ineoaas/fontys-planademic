@@ -7,6 +7,7 @@ using Planademic.Domain;
 
 namespace Planademic.Web.Pages.Courses;
 
+// this means the whole page is blocked to anyone not logged in
 [Authorize]
 public class IndexModel : PageModel
 {
@@ -26,12 +27,14 @@ public class IndexModel : PageModel
     public string? ErrorMessage { get; set; }
     public List<Course> Courses { get; set; } = [];
 
+// reads the claims from the user thats logged in.
     public async Task OnGetAsync()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         Courses = await _courseService.GetCoursesByUserIdAsync(userId);
     }
 
+// this method is called when the student clicks the join code button.
     public async Task<IActionResult> OnPostJoinAsync()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -47,6 +50,7 @@ public class IndexModel : PageModel
         return RedirectToPage();
     }
 
+// this method is called when the teacher clicks the create course button.
     public async Task<IActionResult> OnPostCreateAsync()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -62,6 +66,7 @@ public class IndexModel : PageModel
         return RedirectToPage();
     }
 
+// this method is called when the teacher clicks the delete course button.
     public async Task<IActionResult> OnPostDeleteAsync(int courseId)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
