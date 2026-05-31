@@ -24,6 +24,7 @@ builder.Services.AddScoped<IStudentTaskRepository, StudentTaskRepository>();
 builder.Services.AddScoped<IStudentTaskService, StudentTaskService>();
 builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
+builder.Services.AddScoped<ISchedulingService, SchedulingService>();
 
 // Set up cookie-based authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
