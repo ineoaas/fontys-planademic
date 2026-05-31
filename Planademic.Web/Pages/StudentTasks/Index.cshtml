@@ -5,6 +5,44 @@
     ViewData["ActivePage"] = "StudentTasks";
 }
 
+@section TopbarActions {
+    <button class="btn btn-primary btn-sm" id="createPersonalTaskBtn">+ Create task</button>
+}
+
+@* Create personal task modal *@
+<div class="modal-overlay" id="createPersonalTaskModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">Create a personal task</span>
+            <button class="modal-close" id="closeCreatePersonalTaskModal">✕</button>
+        </div>
+        <form method="post" asp-page-handler="CreatePersonal">
+            <div class="modal-body">
+                @if (Model.ErrorMessage != null)
+                {
+                    <p class="field-error">@Model.ErrorMessage</p>
+                }
+                <div class="field-group">
+                    <label class="field-label" for="personalTitleInput">Title</label>
+                    <input class="field-input" id="personalTitleInput" name="Title" type="text" placeholder="e.g. Read chapter 5" />
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="personalComplexityInput">Complexity (1–10)</label>
+                    <input class="field-input" id="personalComplexityInput" name="Complexity" type="number" min="1" max="10" placeholder="e.g. 3" />
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="personalDeadlineInput">Deadline</label>
+                    <input class="field-input" id="personalDeadlineInput" name="Deadline" type="datetime-local" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost btn-sm" id="cancelCreatePersonalTask">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Create task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @if (!User.IsInRole("Student"))
 {
     <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
@@ -122,4 +160,24 @@ else
             </div>
         }
     </div>
+}
+
+@section Scripts {
+<script>
+    const overlay = document.getElementById('createPersonalTaskModal');
+    const opener  = document.getElementById('createPersonalTaskBtn');
+    const closers = [
+        document.getElementById('closeCreatePersonalTaskModal'),
+        document.getElementById('cancelCreatePersonalTask')
+    ];
+
+    opener?.addEventListener('click', () => overlay?.classList.add('open'));
+    closers.forEach(b => b?.addEventListener('click', () => overlay?.classList.remove('open')));
+    overlay?.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+    @if (Model.ErrorMessage != null)
+    {
+        <text>document.addEventListener('DOMContentLoaded', () => overlay?.classList.add('open'));</text>
+    }
+</script>
 }

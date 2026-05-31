@@ -3,6 +3,12 @@
 @{
     ViewData["Title"] = "Dashboard";
     ViewData["ActivePage"] = "Dashboard";
+
+    string DaysLabel(DateTime deadline)
+    {
+        var days = (deadline.Date - DateTime.Today).Days;
+        return days <= 0 ? "Today" : days == 1 ? "Tomorrow" : $"{days} days";
+    }
 }
 
 @section TopbarActions {
@@ -12,23 +18,23 @@
 <div class="metrics-row">
     <div class="metric-card">
         <span class="metric-label">Pending tasks</span>
-        <span class="metric-value">8</span>
-        <span class="metric-sub">across 3 courses</span>
+        <span class="metric-value">@Model.PendingCount</span>
+        <span class="metric-sub">@Model.DueThisWeekCount due this week</span>
     </div>
-    <div class="metric-card metric-card-warn">
+    <div class="metric-card @(Model.DueThisWeekCount > 0 ? "metric-card-warn" : "")">
         <span class="metric-label">Due this week</span>
-        <span class="metric-value">3</span>
-        <span class="metric-sub">2 high complexity</span>
+        <span class="metric-value">@Model.DueThisWeekCount</span>
+        <span class="metric-sub">@Model.HighComplexityDueThisWeek high complexity</span>
     </div>
     <div class="metric-card">
         <span class="metric-label">Free slots</span>
-        <span class="metric-value">12h</span>
+        <span class="metric-value">@Model.FreeHoursThisWeek h</span>
         <span class="metric-sub">this week</span>
     </div>
-    <div class="metric-card metric-card-ok">
+    <div class="metric-card @(Model.CompletedCount > 0 ? "metric-card-ok" : "")">
         <span class="metric-label">Completed</span>
-        <span class="metric-value">5</span>
-        <span class="metric-sub">this week</span>
+        <span class="metric-value">@Model.CompletedCount</span>
+        <span class="metric-sub">total</span>
     </div>
 </div>
 
@@ -39,46 +45,30 @@
             <span class="card-title">Upcoming tasks</span>
         </div>
         <div class="card-body p0">
-            <div class="task-row">
-                <div class="cbadge cbadge-high">9</div>
-                <div class="task-info">
-                    <div class="task-name">Research essay draft</div>
-                    <div class="task-meta">Software Design</div>
-                </div>
-                <span class="due-pill due-urgent">2 days</span>
-            </div>
-            <div class="task-row">
-                <div class="cbadge cbadge-high">8</div>
-                <div class="task-info">
-                    <div class="task-name">UML class diagram</div>
-                    <div class="task-meta">Software Design</div>
-                </div>
-                <span class="due-pill due-urgent">4 days</span>
-            </div>
-            <div class="task-row">
-                <div class="cbadge cbadge-med">5</div>
-                <div class="task-info">
-                    <div class="task-name">Weekly reflection</div>
-                    <div class="task-meta">Professional Skills</div>
-                </div>
-                <span class="due-pill">7 days</span>
-            </div>
-            <div class="task-row">
-                <div class="cbadge cbadge-med">4</div>
-                <div class="task-info">
-                    <div class="task-name">Database schema review</div>
-                    <div class="task-meta">Databases</div>
-                </div>
-                <span class="due-pill">9 days</span>
-            </div>
-            <div class="task-row task-row-last">
-                <div class="cbadge cbadge-low">2</div>
-                <div class="task-info">
-                    <div class="task-name">Quiz preparation</div>
-                    <div class="task-meta">Databases</div>
-                </div>
-                <span class="due-pill">12 days</span>
-            </div>
+            @if (!Model.TopTasks.Any())
+            {
+                <p style="padding: 1.25rem; color: var(--text-muted);">No pending tasks.</p>
+            }
+            else
+            {
+                for (int i = 0; i < Model.TopTasks.Count; i++)
+                {
+                    var task = Model.TopTasks[i];
+                    var badgeClass = task.Complexity >= 7 ? "cbadge-high"
+                                   : task.Complexity >= 4 ? "cbadge-med"
+                                   : "cbadge-low";
+                    var dueLabel  = DaysLabel(task.Deadline);
+                    var pillClass = (task.Deadline.Date - DateTime.Today).Days <= 3 ? "due-pill due-urgent" : "due-pill";
+                    var rowClass  = i == Model.TopTasks.Count - 1 ? "task-row task-row-last" : "task-row";
+                    <div class="@rowClass">
+                        <div class="cbadge @badgeClass">@task.Complexity</div>
+                        <div class="task-info">
+                            <div class="task-name">@task.Title</div>
+                        </div>
+                        <span class="@pillClass">@dueLabel</span>
+                    </div>
+                }
+            }
         </div>
     </div>
 
@@ -87,31 +77,40 @@
             <span class="card-title">Today's study slots</span>
         </div>
         <div class="card-body p0">
-            <div class="slot-row">
-                <span class="slot-time">09:00 – 10:30</span>
-                <div class="slot-bar slot-indigo">Research essay draft</div>
-            </div>
-            <div class="slot-row">
-                <span class="slot-time">10:30 – 11:00</span>
-                <div class="slot-bar slot-empty">Break</div>
-            </div>
-            <div class="slot-row">
-                <span class="slot-time">13:00 – 14:30</span>
-                <div class="slot-bar slot-indigo">Research essay draft</div>
-            </div>
-            <div class="slot-row">
-                <span class="slot-time">14:30 – 16:00</span>
-                <div class="slot-bar slot-teal">UML class diagram</div>
-            </div>
-            <div class="slot-row slot-row-last">
-                <span class="slot-time">16:00 – 17:00</span>
-                <div class="slot-bar slot-amber">Weekly reflection</div>
-            </div>
-            <div class="slot-legend">
-                <span class="legend-chip chip-indigo">High priority</span>
-                <span class="legend-chip chip-teal">Medium</span>
-                <span class="legend-chip chip-amber">Lower</span>
-            </div>
+            @if (!Model.TodaySlots.Any())
+            {
+                <p style="padding: 1.25rem; color: var(--text-muted);">
+                    No slots scheduled for today.
+                    @if (Model.PendingCount == 0)
+                    {
+                        <text>Add some tasks to get started.</text>
+                    }
+                    else
+                    {
+                        <text><a asp-page="/Availability/Index">Set up availability slots</a> to generate a schedule.</text>
+                    }
+                </p>
+            }
+            else
+            {
+                for (int i = 0; i < Model.TodaySlots.Count; i++)
+                {
+                    var entry    = Model.TodaySlots[i];
+                    var color    = entry.Task.Complexity >= 7 ? "slot-indigo"
+                                 : entry.Task.Complexity >= 4 ? "slot-teal"
+                                 : "slot-amber";
+                    var rowClass = i == Model.TodaySlots.Count - 1 ? "slot-row slot-row-last" : "slot-row";
+                    <div class="@rowClass">
+                        <span class="slot-time">@entry.StartTime.ToString("HH:mm") – @entry.EndTime.ToString("HH:mm")</span>
+                        <div class="slot-bar @color">@entry.Task.Title</div>
+                    </div>
+                }
+                <div class="slot-legend">
+                    <span class="legend-chip chip-indigo">High priority</span>
+                    <span class="legend-chip chip-teal">Medium</span>
+                    <span class="legend-chip chip-amber">Lower</span>
+                </div>
+            }
         </div>
     </div>
 
