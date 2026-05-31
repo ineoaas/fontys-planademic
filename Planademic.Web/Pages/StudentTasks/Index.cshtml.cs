@@ -76,6 +76,32 @@ public class IndexModel : PageModel
         return RedirectToPage();
     }
 
+    public async Task<IActionResult> OnPostCreatePersonalAsync()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        if (string.IsNullOrWhiteSpace(Title) || Complexity < 1 || Complexity > 10 || Deadline == default)
+        {
+            ErrorMessage = "Please fill in all fields with valid values.";
+            AvailableAssignments = await _courseTaskService.GetTasksByStudentEnrollmentsAsync(userId);
+            MyTasks = await _taskService.GetByStudentIdAsync(userId);
+            return Page();
+        }
+
+        var (success, error) = await _taskService.CreateStudentTaskAsync(
+            Title, Complexity, Deadline, userId, assignmentId: null);
+
+        if (!success)
+        {
+            ErrorMessage = error;
+            AvailableAssignments = await _courseTaskService.GetTasksByStudentEnrollmentsAsync(userId);
+            MyTasks = await _taskService.GetByStudentIdAsync(userId);
+            return Page();
+        }
+
+        return RedirectToPage();
+    }
+
     public async Task<IActionResult> OnPostCompleteAsync(int taskId)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
