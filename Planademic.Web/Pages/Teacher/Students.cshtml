@@ -1,0 +1,53 @@
+@page
+@model Planademic.Web.Pages.Teacher.StudentsModel
+@{
+    ViewData["Title"] = "Students";
+    ViewData["ActivePage"] = "Students";
+}
+
+@if (!User.IsInRole("Teacher"))
+{
+    <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
+        <p style="font-size:1.1rem;font-weight:600;">Teacher access only</p>
+    </div>
+    return;
+}
+
+@if (!Model.Courses.Any())
+{
+    <p style="color: var(--text-muted);">You have no courses yet.</p>
+}
+else
+{
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        @foreach (var course in Model.Courses)
+        {
+            var isActive = course.Id == Model.SelectedCourseId;
+            <a href="?courseId=@course.Id"
+               class="btn btn-sm @(isActive ? "btn-primary" : "btn-ghost")"
+               style="text-decoration: none;">
+                @course.Name
+            </a>
+        }
+    </div>
+
+    @if (!Model.Students.Any())
+    {
+        <p style="color: var(--text-muted);">No students enrolled in this course yet.</p>
+    }
+    else
+    {
+        <div class="course-grid">
+            @foreach (var student in Model.Students)
+            {
+                <div class="course-card">
+                    <div class="course-color-bar" style="background: #34d399;"></div>
+                    <div class="course-body">
+                        <div class="course-name">@student.FirstName @student.LastName</div>
+                        <div class="course-teacher" style="color: var(--text-muted);">@student.Email</div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
