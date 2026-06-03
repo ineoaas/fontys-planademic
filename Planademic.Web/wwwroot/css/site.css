@@ -720,6 +720,14 @@ em { font-style: italic; color: var(--accent); }
 
 .auth-body { background: var(--bg); }
 
+.auth-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
 .auth-screen {
     display: grid;
     grid-template-columns: 1fr 1fr;

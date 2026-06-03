@@ -5,93 +5,51 @@
     ViewData["Title"] = "Log in";
 }
 
-<div class="auth-screen">
+<div class="auth-center">
+    <div class="auth-form-wrap">
+        <h2 class="auth-form-title">Log in</h2>
 
-    <!-- Left: branding -->
-    <div class="auth-left">
-        <div class="auth-left-inner">
-            <div class="auth-logo">
-                <div class="brand-mark">P</div>
-                <span class="brand-name">Planademic</span>
+        <form method="post" class="auth-form">
+            @Html.AntiForgeryToken()
+
+            @if (Model.ErrorMessage != null)
+            {
+                <div class="auth-error">@Model.ErrorMessage</div>
+            }
+
+            <div class="field-group" style="margin-bottom: 1rem;">
+                <p class="field-label">I am a</p>
+                <div class="role-toggle">
+                    <label class="role-opt">
+                        <input type="radio" name="Role" value="Student" checked />
+                        <span>Student</span>
+                    </label>
+                    <label class="role-opt">
+                        <input type="radio" name="Role" value="Teacher" />
+                        <span>Teacher</span>
+                    </label>
+                </div>
             </div>
 
-            <h1 class="auth-headline">
-                Stop guessing<br />what to study.<br /><em>Start knowing.</em>
-            </h1>
-            <p class="auth-sub">
-                Your tasks, your free time, one auto-generated study roadmap.
+            <div class="field-group">
+                <label class="field-label" for="email">Email address</label>
+                <input class="field-input" type="email" id="email" name="Email"
+                       placeholder="you@student.fontys.nl" />
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="password">Password</label>
+                <input class="field-input" type="password" id="password" name="Password"
+                       placeholder="••••••••" />
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg">
+                Log in →
+            </button>
+
+            <p class="auth-switch">
+                No account? <a asp-page="/Account/Register">Register here</a>
             </p>
-
-            <div class="login-preview">
-                <div class="lp-header">Today's priority queue</div>
-                <div class="lp-row high">
-                    <span class="lp-badge">9</span>
-                    <span class="lp-name">Software Engineering Essay</span>
-                    <span class="lp-due urgent">2 days</span>
-                </div>
-                <div class="lp-row medium">
-                    <span class="lp-badge med">7</span>
-                    <span class="lp-name">Database Normalization</span>
-                    <span class="lp-due">5 days</span>
-                </div>
-                <div class="lp-row low">
-                    <span class="lp-badge low">3</span>
-                    <span class="lp-name">Math Revision</span>
-                    <span class="lp-due">12 days</span>
-                </div>
-            </div>
-        </div>
+        </form>
     </div>
-
-    <!-- Right: form -->
-    <div class="auth-right">
-        <div class="auth-form-wrap">
-            <h2 class="auth-form-title">Welcome back</h2>
-            <p class="auth-form-sub">Log in to see your study roadmap.</p>
-
-            <form method="post" class="auth-form">
-                @Html.AntiForgeryToken()
-
-                @if (Model.ErrorMessage != null)
-                {
-                    <div class="auth-error">@Model.ErrorMessage</div>
-                }
-
-                <div class="field-group" style="margin-bottom: 1rem;">
-                    <p class="field-label">I am a</p>
-                    <div class="role-toggle">
-                        <label class="role-opt">
-                            <input type="radio" name="Role" value="Student" checked />
-                            <span>Student</span>
-                        </label>
-                        <label class="role-opt">
-                            <input type="radio" name="Role" value="Teacher" />
-                            <span>Teacher</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="field-group">
-                    <label class="field-label" for="email">Email address</label>
-                    <input class="field-input" type="email" id="email" name="Email"
-                           placeholder="you@student.fontys.nl" />
-                </div>
-
-                <div class="field-group">
-                    <label class="field-label" for="password">Password</label>
-                    <input class="field-input" type="password" id="password" name="Password"
-                           placeholder="••••••••" />
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-full btn-lg">
-                    Log in →
-                </button>
-
-                <p class="auth-switch">
-                    No account? <a asp-page="/Account/Register">Register here</a>
-                </p>
-            </form>
-        </div>
-    </div>
-
 </div>
