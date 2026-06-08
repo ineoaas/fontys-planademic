@@ -29,6 +29,18 @@ public class UserService : IUserService
     public async Task<(bool Success, string? Error, User? User)> RegisterAsync(
         string email, string password, string firstName, string lastName)
     {
+        if (string.IsNullOrWhiteSpace(email))
+            return (false, "All fields are required.", null);
+
+        if (string.IsNullOrWhiteSpace(password))
+            return (false, "All fields are required.", null);
+
+        if (string.IsNullOrWhiteSpace(firstName))
+            return (false, "All fields are required.", null);
+
+        if (string.IsNullOrWhiteSpace(lastName))
+            return (false, "All fields are required.", null);
+
         if (await _userRepository.EmailExistsAsync(email))
             return (false, "An account with this email already exists.", null);
 
