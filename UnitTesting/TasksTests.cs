@@ -19,4 +19,43 @@ public class TasksTests
         Assert.NotNull(fakeRepo.AddedAssignment);
         Assert.Equal("Test Assignment", fakeRepo.AddedAssignment.Title);
     }
+
+    [Fact]
+    public async Task GenerateCode()
+    {
+        var fakeRepo = new FakeCourseTaskRepository();
+        var service = new CourseTaskService(fakeRepo);
+        var deadline = DateTime.UtcNow.AddDays(7);
+
+        var (success, error) = await service.CreateCourseTaskAsync("Test Assignment", "Test Description", 5, deadline, 1);
+
+        Assert.True(success);
+        Assert.Null(error);
+    }
+
+    [Fact]
+    public async Task ReturnsErrorWhenCourseIdIsInvalid()
+    {
+        var fakeRepo = new FakeCourseTaskRepository();
+        var service = new CourseTaskService(fakeRepo);
+        var deadline = DateTime.UtcNow.AddDays(7);
+
+        var (success, error) = await service.CreateCourseTaskAsync("Test Assignment", "Test Description", 5, deadline, -1);
+
+        Assert.False(success);
+        Assert.NotNull(error);
+    }
+
+    [Fact]
+    public async Task ReturnsErrorWhenDeadlineIsInThePast()
+    {
+        var fakeRepo = new FakeCourseTaskRepository();
+        var service = new CourseTaskService(fakeRepo);
+        var deadline = DateTime.UtcNow.AddDays(-1);
+
+        var (success, error) = await service.CreateCourseTaskAsync("Test Assignment", "Test Description", 5, deadline, 1);
+
+        Assert.False(success);
+        Assert.NotNull(error);
+    }
 }
