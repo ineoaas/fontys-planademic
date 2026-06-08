@@ -1,4 +1,5 @@
 using Planademic.BLL.Services;
+using Planademic.Domain;
 using UnitTesting.Fakes;
 
 namespace UnitTesting;
@@ -46,5 +47,34 @@ public class CourseServiceTests
         await service2.CreateCourseAsync("Science 101", teacherId: 1);
 
         Assert.NotEqual(fakeRepo1.AddedCourse!.JoinCode, fakeRepo2.AddedCourse!.JoinCode);
+    }
+
+    // TC-003-01: Verify a Student can join a course with a valid join code
+    [Fact]
+    public async Task StudentCanJoinCourseWithValidJoinCode()
+    {
+        var fakeRepo = new FakeCourseRepository();
+        var service = new CourseService(fakeRepo);
+        var course = new Course { Id = 1, Name = "Any Course", JoinCode = "CorrectCode" };
+        fakeRepo.CourseToReturn = course;
+
+        var (success, error) = await service.JoinCourseAsync("CorrectCode", studentId: 2);
+
+        Assert.True(success);
+        Assert.Null(error);    
+    }
+    
+    // TC-003-02: Verify joining a course is rejected for an invalid join code
+    [Fact]
+    public async Task StudentCannotJoinCourseWithInvalidJoinCode()
+    {
+        var fakeRepo = new FakeCourseRepository();
+        var service = new CourseService(fakeRepo);
+        fakeRepo.CourseToReturn = null; // Simulate invalid join code
+
+        var (success, error) = await service.JoinCourseAsync("WrongCode", studentId: 2);
+
+        Assert.False(success);
+        Assert.NotNull(error);
     }
 }
