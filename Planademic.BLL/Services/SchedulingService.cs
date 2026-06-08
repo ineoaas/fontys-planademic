@@ -34,41 +34,42 @@ public class SchedulingService : ISchedulingService
             .ThenBy(t => t.Id)
             .ToList();
 
-        // Find the next date each slot occurs and sort them chronologically
+        // Map each slot to its date in the current Monday–Sunday week
+        // Using % 7 to convert Sunday=0 to 6, Monday=1 to 0, etc.
         var today = DateOnly.FromDateTime(DateTime.Today);
+        int daysFromMonday = ((int)today.DayOfWeek + 6) % 7;
+        var weekStart = today.AddDays(-daysFromMonday);
+
         var upcomingSlots = new List<(AvailabilitySlot Slot, DateOnly Date)>();
         foreach (var slot in slots)
         {
-            var date = NextOccurrence(today, slot.DayOfWeek);
+            int offset = ((int)slot.DayOfWeek + 6) % 7;
+            var date = weekStart.AddDays(offset);
             upcomingSlots.Add((slot, date));
         }
         upcomingSlots = upcomingSlots.OrderBy(x => x.Date).ThenBy(x => x.Slot.StartTime).ToList();
 
-        // Assign tasks to slots in priority order
-        var result = new List<ScheduledTask>();
-        int taskIndex = 0;
-        int slotsLeft = SlotsNeeded(prioritised[0]);
-
-        foreach (var pair in upcomingSlots)
+        // Build a weighted pool: complex tasks appear more times so they get more slots
+        var pool = new List<StudentTask>();
+        foreach (var task in prioritised)
         {
-            if (taskIndex >= prioritised.Count)
-                break;
+            int count = SlotsNeeded(task);
+            for (int j = 0; j < count; j++)
+                pool.Add(task);
+        }
 
-            var currentTask = prioritised[taskIndex];
+        // Fill every available slot, cycling through the pool so no slot is ever left empty
+        var result = new List<ScheduledTask>();
+        for (int i = 0; i < upcomingSlots.Count; i++)
+        {
+            var pair = upcomingSlots[i];
+            var task = pool[i % pool.Count];
             result.Add(new ScheduledTask(
-                currentTask,
+                task,
                 pair.Slot.DayOfWeek,
                 pair.Date,
                 pair.Slot.StartTime,
                 pair.Slot.EndTime));
-
-            slotsLeft--;
-            if (slotsLeft == 0)
-            {
-                taskIndex++;
-                if (taskIndex < prioritised.Count)
-                    slotsLeft = SlotsNeeded(prioritised[taskIndex]);
-            }
         }
 
         return result;
@@ -95,12 +96,4 @@ public class SchedulingService : ISchedulingService
         return slots;
     }
 
-    // Walk forward day by day until we land on the right day of the week
-    private static DateOnly NextOccurrence(DateOnly from, DayOfWeek target)
-    {
-        var current = from;
-        while (current.DayOfWeek != target)
-            current = current.AddDays(1);
-        return current;
-    }
 }

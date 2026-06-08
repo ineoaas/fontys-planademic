@@ -19,8 +19,8 @@ public class AvailabilityRepository : IAvailabilityRepository
             .ToListAsync();
     }
 
-// Delete all existing slots for this student
-// Insert all the new ones
+    // Delete all existing slots for this student
+    // Insert all the new ones
     public async Task SaveRangeAsync(int studentId, List<AvailabilitySlot> slots)
     {
         var existing = await _context.AvailabilitySlots

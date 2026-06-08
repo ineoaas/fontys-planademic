@@ -32,23 +32,33 @@ public class AvailabilityService : IAvailabilityService
     public Task DeleteSlotAsync(int slotId)
         => _repo.DeleteAsync(slotId);
 
-    // Helper used by the page model to build slots from the grid selection
+    // Grid day 0 = Monday, but DayOfWeek.Monday = 1 (Sunday = 0).
+    // Convert: gridDay → DayOfWeek via (gridDay + 1) % 7
+    // DayOfWeek → gridDay via ((int)DayOfWeek + 6) % 7
     public static List<AvailabilitySlot> BuildSlots(int studentId, List<(int Day, int Slot)> selections)
     {
-        return selections
-            .Where(s => s.Slot >= 0 && s.Slot < SlotTimes.Length)
-            .Select(s => new AvailabilitySlot
+        var result = new List<AvailabilitySlot>();
+
+        foreach (var s in selections)
+        {
+            if (s.Slot < 0 || s.Slot >= SlotTimes.Length)
+                continue;
+
+            var slot = new AvailabilitySlot
             {
-                StudentId  = studentId,
-                DayOfWeek  = (DayOfWeek)s.Day,
-                StartTime  = SlotTimes[s.Slot].Start,
-                EndTime    = SlotTimes[s.Slot].End,
+                StudentId   = studentId,
+                DayOfWeek   = (DayOfWeek)((s.Day + 1) % 7),
+                StartTime   = SlotTimes[s.Slot].Start,
+                EndTime     = SlotTimes[s.Slot].End,
                 IsRecurring = true,
-            })
-            .ToList();
+            };
+
+            result.Add(slot);
+        }
+
+        return result;
     }
 
-    // Helper to convert stored slots back to (day, slotIndex) pairs for the grid
     public static HashSet<(int Day, int Slot)> ToGridSet(List<AvailabilitySlot> slots)
     {
         var result = new HashSet<(int, int)>();
@@ -56,7 +66,7 @@ public class AvailabilityService : IAvailabilityService
         {
             var idx = Array.FindIndex(SlotTimes, t => t.Start == s.StartTime);
             if (idx >= 0)
-                result.Add(((int)s.DayOfWeek, idx));
+                result.Add((((int)s.DayOfWeek + 6) % 7, idx));
         }
         return result;
     }

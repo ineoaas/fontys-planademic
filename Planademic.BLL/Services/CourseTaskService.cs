@@ -12,7 +12,7 @@ public class CourseTaskService : ICourseTaskService
         _taskRepo = taskRepo;
     }
 
-// This method is the same as the StudentTaskService one.
+    // This method is the same as the StudentTaskService one.
     public async Task<(bool Success, string? Error)> CreateCourseTaskAsync(string title, string description, int complexity, DateTime deadline, int courseId)
     {
         if (string.IsNullOrWhiteSpace(title))
@@ -23,6 +23,9 @@ public class CourseTaskService : ICourseTaskService
 
         if (deadline <= DateTime.UtcNow)
             return (false, "Deadline must be in the future.");
+
+        if (courseId <= 0)
+            return (false, "Invalid course.");
 
         var assignment = new Assignment
         {

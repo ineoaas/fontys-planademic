@@ -4,7 +4,6 @@
     ViewData["Title"] = "Study Schedule";
     ViewData["ActivePage"] = "Schedule";
     var days = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday };
-    var grouped = Model.Schedule.GroupBy(s => s.Date).OrderBy(g => g.Key).ToList();
 }
 
 @section TopbarActions {
@@ -19,22 +18,17 @@
     </div>
     <div class="card-body p0">
 
-        @if (!grouped.Any())
+        @for (int d = 0; d < 7; d++)
         {
-            <p style="padding: 1.5rem; color: var(--text-muted);">
-                No schedule generated. Make sure you have incomplete tasks and availability slots set up.
-            </p>
-        }
-        else
-        {
-            for (int i = 0; i < grouped.Count; i++)
-            {
-                var group = grouped[i];
-                var rowClass = i == grouped.Count - 1 ? "week-row week-row-last" : "week-row";
-                <div class="@rowClass">
-                    <span class="week-day">@group.Key.ToString("ddd MMM d")</span>
-                    <div class="week-slots">
-                        @foreach (var entry in group)
+            var date = Model.WeekStart.AddDays(d);
+            var dayEntries = Model.Schedule.Where(s => s.Date == date).ToList();
+            var rowClass = d == 6 ? "week-row week-row-last" : "week-row";
+            <div class="@rowClass">
+                <span class="week-day">@date.ToString("ddd MMM d")</span>
+                <div class="week-slots">
+                    @if (dayEntries.Any())
+                    {
+                        @foreach (var entry in dayEntries)
                         {
                             var color = entry.Task.Complexity >= 7 ? "slot-indigo"
                                       : entry.Task.Complexity >= 4 ? "slot-teal"
@@ -44,9 +38,13 @@
                                 <div class="slot-bar @color">@entry.Task.Title</div>
                             </div>
                         }
-                    </div>
+                    }
+                    else
+                    {
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">No sessions</span>
+                    }
                 </div>
-            }
+            </div>
         }
 
     </div>

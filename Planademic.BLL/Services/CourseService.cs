@@ -60,6 +60,11 @@ public class CourseService : ICourseService
         return await _courseRepository.DeleteAsync(courseId, teacherId);
     }
 
+    public async Task<List<User>> GetStudentsInCourseAsync(int courseId, int teacherId)
+    {
+        return await _courseRepository.GetStudentsByCourseIdAsync(courseId, teacherId);
+    }
+
 // not including 1 i and o 0 because they look alike.
     private static string GenerateJoinCode()
     {

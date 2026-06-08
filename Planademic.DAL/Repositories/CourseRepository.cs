@@ -24,8 +24,8 @@ public class CourseRepository : ICourseRepository
             .FirstOrDefaultAsync(c => c.JoinCode == joinCode);
     }
 
-// This method builds two seperate queries for a the two different roles.
-// Combines the results using Union to return a single list of courses.
+    // This method builds two seperate queries for a the two different roles.
+    // Combines the results using Union to return a single list of courses.
     public async Task<List<Course>> GetByUserIdAsync(int userId)
     {
         var teacherCourses = _context.Courses.Where(c => c.TeacherId == userId);
@@ -51,7 +51,26 @@ public class CourseRepository : ICourseRepository
             .AnyAsync(e => e.CourseId == courseId && e.StudentId == studentId);
     }
 
-// first deletes student tasks, then assignments, then enrollments, then the course.
+    public async Task<List<User>> GetStudentsByCourseIdAsync(int courseId, int teacherId)
+    {
+        var course = await _context.Courses.FindAsync(courseId);
+
+        if (course == null || course.TeacherId != teacherId)
+            return [];
+
+        // This query joins the Enrollments and Users tables to get the list of students enrolled in the course.
+        var students = await (
+            from enrollment in _context.Enrollments
+            where enrollment.CourseId == courseId
+            join user in _context.Users on enrollment.StudentId equals user.Id
+            orderby user.LastName, user.FirstName
+            select user
+        ).ToListAsync();
+
+        return students;
+    }
+
+    // first deletes student tasks, then assignments, then enrollments, then the course.
     public async Task<bool> DeleteAsync(int courseId, int teacherId)
     {
         var course = await _context.Courses
