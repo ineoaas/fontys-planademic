@@ -6,6 +6,7 @@ namespace UnitTesting;
 
 public class UserServiceTests
 {
+    // TC-001-04: Login rejected for invalid credentials (user not found)
     [Fact]
     public async Task ReturnNullWhenUserNotFound()
     {
@@ -18,6 +19,7 @@ public class UserServiceTests
         Assert.Null(result);
     }
 
+    // TC-001-04: Login rejected for invalid credentials (wrong role)
     [Fact]
     public async Task ReturnNullWhenRoleDoesNotMatch()
     {
@@ -30,6 +32,7 @@ public class UserServiceTests
         Assert.Null(result);
     }
 
+    // TC-001-04: Login rejected for invalid credentials (wrong password)
     [Fact]
     public async Task ReturnNullWhenPasswordIsWrong()
     {
@@ -42,6 +45,7 @@ public class UserServiceTests
         Assert.Null(result);
     }
 
+    // TC-001-03: Registered user can log in with correct credentials
     [Fact]
     public async Task ReturnUserWhenCredentialsAreValid()
     {
@@ -55,6 +59,7 @@ public class UserServiceTests
         Assert.Equal("a@test.com", result.Email);
     }
 
+    // TC-001-01: New student can register with valid credentials
     [Fact]
     public async Task ReturnsErrorWhenEmailAlreadyExists()
     {
@@ -69,6 +74,7 @@ public class UserServiceTests
         Assert.Null(user);
     }
 
+    // TC-001-01: New student can register with valid credentials
     [Fact]
     public async Task ReturnsUserWhenEmailIsNew()
     {
@@ -84,6 +90,7 @@ public class UserServiceTests
         Assert.Equal("new@test.com", user.Email);
     }
 
+    // TC-001-01: New student can register with valid credentials
     [Fact]
     public async Task SavesUserToRepository()
     {
@@ -97,6 +104,7 @@ public class UserServiceTests
         Assert.Equal("new@test.com", fakeRepo.AddedUser.Email);
     }
 
+    // TC-001-01: New student can register with valid credentials
     [Fact]
     public async Task AssignStudentRolle()
     {
