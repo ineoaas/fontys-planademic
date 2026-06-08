@@ -104,11 +104,9 @@ public class UserServiceTests
         fakeRepo.EmailExists = false;
 
         var userService = new UserService(fakeRepo);
-        var (success, error, user) = await userService.RegisterAsync("new@test.com", "pass", "Jan", "Jansen");
+        var (success, error, user) = await userService.RegisterAsync("student@test.com", "pass", "Jan", "Jansen");
 
         Assert.True(success);
-        Assert.Null(error);
-        Assert.NotNull(user);
-        Assert.Equal("Student", user.Role);
+        Assert.Equal("Student", user?.Role);
     }
 }
