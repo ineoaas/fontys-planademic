@@ -6,7 +6,7 @@ namespace UnitTesting;
 
 public class UserServiceTests
 {
-    // TC-001-04: Login rejected for invalid credentials (user not found)
+    // TC-001-03: Login rejected for invalid credentials (user not found)
     [Fact]
     public async Task ReturnNullWhenUserNotFound()
     {
@@ -19,7 +19,7 @@ public class UserServiceTests
         Assert.Null(result);
     }
 
-    // TC-001-04: Login rejected for invalid credentials (wrong role)
+    // TC-001-03: Login rejected for invalid credentials (wrong role)
     [Fact]
     public async Task ReturnNullWhenRoleDoesNotMatch()
     {
@@ -32,7 +32,7 @@ public class UserServiceTests
         Assert.Null(result);
     }
 
-    // TC-001-04: Login rejected for invalid credentials (wrong password)
+    // TC-001-03: Login rejected for invalid credentials (wrong password)
     [Fact]
     public async Task ReturnNullWhenPasswordIsWrong()
     {
@@ -45,7 +45,7 @@ public class UserServiceTests
         Assert.Null(result);
     }
 
-    // TC-001-03: Registered user can log in with correct credentials
+    // TC-001-02: Registered user can log in with correct credentials
     [Fact]
     public async Task ReturnUserWhenCredentialsAreValid()
     {
@@ -116,5 +116,20 @@ public class UserServiceTests
 
         Assert.True(success);
         Assert.Equal("Student", user?.Role);
+    }
+
+    // TC-001-04: Verify registration is rejected when required fields are empty
+    [Fact]
+    public async Task ReturnsErrorWhenRequiredFieldsAreEmpty()
+    {
+        var fakeRepo = new FakeUserRepository();
+        fakeRepo.EmailExists = false;
+
+        var userService = new UserService(fakeRepo);
+        var (success, error, user) = await userService.RegisterAsync("", "", "", "");
+
+        Assert.False(success);
+        Assert.NotNull(error);
+        Assert.Null(user);
     }
 }
