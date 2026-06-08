@@ -24,8 +24,8 @@ public class CourseRepository : ICourseRepository
             .FirstOrDefaultAsync(c => c.JoinCode == joinCode);
     }
 
-// This method builds two seperate queries for a the two different roles.
-// Combines the results using Union to return a single list of courses.
+    // This method builds two seperate queries for a the two different roles.
+    // Combines the results using Union to return a single list of courses.
     public async Task<List<Course>> GetByUserIdAsync(int userId)
     {
         var teacherCourses = _context.Courses.Where(c => c.TeacherId == userId);
@@ -70,7 +70,7 @@ public class CourseRepository : ICourseRepository
         return students;
     }
 
-// first deletes student tasks, then assignments, then enrollments, then the course.
+    // first deletes student tasks, then assignments, then enrollments, then the course.
     public async Task<bool> DeleteAsync(int courseId, int teacherId)
     {
         var course = await _context.Courses
