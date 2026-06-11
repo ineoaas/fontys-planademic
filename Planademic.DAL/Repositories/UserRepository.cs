@@ -12,7 +12,7 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-// Get by email finds the user by email. first or default returns null if no one matches.
+    // Get by email finds the user by email. first or default returns null if no one matches.
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _context.Users
@@ -25,7 +25,7 @@ public class UserRepository : IUserRepository
             .AnyAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
-// first stages the new row in memory, then sends the insert command to the server.
+    // first stages the new row in memory, then sends the insert command to the server.
     public async Task AddAsync(User user)
     {
         _context.Users.Add(user);
