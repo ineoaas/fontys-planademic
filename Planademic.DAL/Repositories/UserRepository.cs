@@ -25,7 +25,7 @@ public class UserRepository : IUserRepository
             .AnyAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
-    // first stages the new row in memory, then sends the insert command to the server.
+    // First stages the new row in memory, then sends the insert command to the server.
     public async Task AddAsync(User user)
     {
         _context.Users.Add(user);
