@@ -12,7 +12,7 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-// checks if user exists, if the roles match, and if the password is correct.
+    // checks if user exists, if the roles match, and if the password is correct.
     public async Task<User?> ValidateLoginAsync(string email, string password, string role)
     {
         var user = await _userRepository.GetByEmailAsync(email);
@@ -25,7 +25,7 @@ public class UserService : IUserService
         return user;
     }
 
-// checks if email is already used, if not creates a new user and saves it to the database.
+    // checks if email is already used, if not creates a new user and saves it to the database.
     public async Task<(bool Success, string? Error, User? User)> RegisterAsync(
         string email, string password, string firstName, string lastName)
     {

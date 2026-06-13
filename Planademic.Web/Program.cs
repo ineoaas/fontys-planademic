@@ -1,17 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using Planademic.BLL.Services;
-using Planademic.DAL;
 using Planademic.DAL.Repositories;
-using Planademic.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
-
-// Register EF Core with the MSSQL connection string from appsettings.json
-builder.Services.AddDbContext<PlanademicDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register the repository and service so they can be injected into page models
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -37,23 +31,28 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+// Seed the default teacher account if it doesn't exist yet
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+await using var seedConn = new SqlConnection(connectionString);
+await seedConn.OpenAsync();
+
+const string teacherEmail = "justinleomaas@gmail.com";
+await using var checkCmd = new SqlCommand("SELECT COUNT(1) FROM Users WHERE Email = @Email", seedConn);
+checkCmd.Parameters.AddWithValue("@Email", teacherEmail);
+var teacherExists = (int)(await checkCmd.ExecuteScalarAsync())! > 0;
+
+if (!teacherExists)
 {
-    var db = scope.ServiceProvider.GetRequiredService<PlanademicDbContext>();
-    const string teacherEmail = "justinleomaas@gmail.com";
-    if (!db.Users.Any(u => u.Email == teacherEmail))
-    {
-        db.Users.Add(new User
-        {
-            Email = teacherEmail,
-            PasswordHash = "password",
-            Role = "Teacher",
-            FirstName = "Justin",
-            LastName = "Maas",
-            CreatedAt = DateTime.UtcNow,
-        });
-        db.SaveChanges();
-    }
+    await using var insertCmd = new SqlCommand(@"
+        INSERT INTO Users (Email, PasswordHash, Role, FirstName, LastName)
+        VALUES (@Email, @Password, @Role, @FirstName, @LastName)",
+        seedConn);
+    insertCmd.Parameters.AddWithValue("@Email", teacherEmail);
+    insertCmd.Parameters.AddWithValue("@Password", "password");
+    insertCmd.Parameters.AddWithValue("@Role", "Teacher");
+    insertCmd.Parameters.AddWithValue("@FirstName", "Justin");
+    insertCmd.Parameters.AddWithValue("@LastName", "Maas");
+    await insertCmd.ExecuteNonQueryAsync();
 }
 
 if (!app.Environment.IsDevelopment())

@@ -64,6 +64,7 @@ public class AvailabilityService : IAvailabilityService
         var result = new HashSet<(int, int)>();
         foreach (var s in slots)
         {
+            // Convert DayOfWeek to grid day index
             var idx = Array.FindIndex(SlotTimes, t => t.Start == s.StartTime);
             if (idx >= 0)
                 result.Add((((int)s.DayOfWeek + 6) % 7, idx));

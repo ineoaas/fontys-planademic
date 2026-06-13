@@ -50,6 +50,7 @@ public class TasksTests
         Assert.NotNull(fakeRepo.AddedStudentTask);
         Assert.Equal("Study for Exam", fakeRepo.AddedStudentTask.Title);
     }
+    
     // Extra test cases for edge scenarios
     [Fact]
     public async Task ReturnsErrorWhenCourseIdIsInvalid()

@@ -87,7 +87,7 @@ public class SchedulingService : ISchedulingService
         return score;
     }
 
-    // A complexity-10 task needs 5 slots, complexity-2 needs 1 slot, etc.
+
     private static int SlotsNeeded(StudentTask task)
     {
         int slots = (int)Math.Ceiling(task.Complexity / 2.0);
