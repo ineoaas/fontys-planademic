@@ -134,8 +134,16 @@ public class CourseRepository : ICourseRepository
         await using var conn = new SqlConnection(_connectionString);
         await conn.OpenAsync();
 
-        // Delete student tasks linked to this course's assignments first
-        // The DB won't do this automatically because Tasks has ON DELETE SET NULL, not CASCADE
+        // Verify ownership before deleting anything
+        await using var checkCmd = new SqlCommand(
+            "SELECT COUNT(1) FROM Courses WHERE Id = @CourseId AND TeacherId = @TeacherId",
+            conn);
+        checkCmd.Parameters.AddWithValue("@CourseId", courseId);
+        checkCmd.Parameters.AddWithValue("@TeacherId", teacherId);
+        if ((int)(await checkCmd.ExecuteScalarAsync())! == 0)
+            return false;
+
+        // Must delete related records in other tables first to avoid foreign key constraint errors
         await using var deleteTasksCmd = new SqlCommand(@"
             DELETE FROM Tasks WHERE AssignmentId IN (
                 SELECT Id FROM Assignments WHERE CourseId = @CourseId
@@ -144,12 +152,22 @@ public class CourseRepository : ICourseRepository
         deleteTasksCmd.Parameters.AddWithValue("@CourseId", courseId);
         await deleteTasksCmd.ExecuteNonQueryAsync();
 
-        // Now delete the course itself, but only if the teacher owns it
+        await using var deleteAssignmentsCmd = new SqlCommand(
+            "DELETE FROM Assignments WHERE CourseId = @CourseId",
+            conn);
+        deleteAssignmentsCmd.Parameters.AddWithValue("@CourseId", courseId);
+        await deleteAssignmentsCmd.ExecuteNonQueryAsync();
+
+        await using var deleteEnrollmentsCmd = new SqlCommand(
+            "DELETE FROM CourseEnrollments WHERE CourseId = @CourseId",
+            conn);
+        deleteEnrollmentsCmd.Parameters.AddWithValue("@CourseId", courseId);
+        await deleteEnrollmentsCmd.ExecuteNonQueryAsync();
+
         await using var deleteCourseCmd = new SqlCommand(
-            "DELETE FROM Courses WHERE Id = @CourseId AND TeacherId = @TeacherId",
+            "DELETE FROM Courses WHERE Id = @CourseId",
             conn);
         deleteCourseCmd.Parameters.AddWithValue("@CourseId", courseId);
-        deleteCourseCmd.Parameters.AddWithValue("@TeacherId", teacherId);
         var rowsDeleted = await deleteCourseCmd.ExecuteNonQueryAsync();
         return rowsDeleted > 0;
     }
